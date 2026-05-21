@@ -28,14 +28,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()   // Permite cualquier origen (tu IP de m髒il)
+        policy.AllowAnyOrigin()   // Permite cualquier origen (tu IP de m贸vil)
               .AllowAnyMethod()   // Permite GET, POST, PUT, DELETE, etc.
               .AllowAnyHeader();  // Permite cualquier cabecera (tokens, etc.)
     });
 
     options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.WithOrigins("https://setpoint.info") // POR SI HAGO PAGINA WEB TAMBIEN, REEMPLAZA CON TU DOMINIO REAL
+        policy.WithOrigins("*************") // POR SI HAGO PAGINA WEB TAMBIEN, REEMPLAZA CON TU DOMINIO REAL
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -127,9 +127,9 @@ else
     app.UseHttpsRedirection();
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
-app.UseRouting(); ///////// Asegura que el middleware de enrutamiento se ejecute antes de la autenticaci髇 y autorizaci髇
-app.UseRateLimiter(); ///// Asegura que el middleware de limitaci髇 de tasa se ejecute antes de la autorizaci髇 para proteger los endpoints
-app.UseAuthentication(); // Asegura que el middleware de autenticaci髇 se ejecute antes de la autorizaci髇
-app.UseAuthorization(); /// Asegura que el middleware de autorizaci髇 se ejecute despu閟 de la autenticaci髇 y limitaci髇 de tasa
-app.MapControllers(); ///// Asegura que los endpoints de los controladores est閚 disponibles para el enrutamiento
+app.UseRouting(); ///////// Asegura que el middleware de enrutamiento se ejecute antes de la autenticaci贸n y autorizaci贸n
+app.UseRateLimiter(); ///// Asegura que el middleware de limitaci贸n de tasa se ejecute antes de la autorizaci贸n para proteger los endpoints
+app.UseAuthentication(); // Asegura que el middleware de autenticaci贸n se ejecute antes de la autorizaci贸n
+app.UseAuthorization(); /// Asegura que el middleware de autorizaci贸n se ejecute despu茅s de la autenticaci贸n y limitaci贸n de tasa
+app.MapControllers(); ///// Asegura que los endpoints de los controladores est茅n disponibles para el enrutamiento
 app.Run();
