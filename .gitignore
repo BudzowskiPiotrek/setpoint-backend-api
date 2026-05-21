@@ -1,0 +1,97 @@
+## --- Artifacts & Build Output ---
+[Bb]in/
+[Oo]bj/
+[Log]s/
+[Tt]est[Rr]esults/
+
+## --- .NET Core / .NET User Secrets ---
+# No subir nunca secretos de desarrollo
+secrets.json
+appsettings.Development.json
+
+## --- Visual Studio ---
+.vs/
+*.user
+*.userosscache
+*.sln.doccache
+
+## --- Visual Studio Code ---
+.vscode/
+# Excluir solo si no compartes la configuración de depuración con el equipo
+#!.vscode/settings.json
+#!.vscode/tasks.json
+#!.vscode/launch.json
+#!.vscode/extensions.json
+
+## --- JetBrains Rider ---
+.idea/
+*.sln.iml
+
+## --- Dependencies ---
+# Paquetes de NuGet
+*.nupkg
+# La carpeta de paquetes global no suele estar en la raíz, 
+# pero se incluye por seguridad en estructuras monorepo.
+**/packages/*
+!**/packages/build/
+
+## --- Publishing & Deployment ---
+# Salida de dotnet publish
+publish/
+*.azurepubxml
+*.pubxml
+
+## --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+## --- Entity Framework ---
+# Si usas migraciones, no ignores los archivos .cs de migración,
+# pero podrías querer ignorar el log de SQL si generas scripts.
+*.sql
+
+# Bloqueo total de archivos de configuración de ASP.NET Core
+appsettings.json
+appsettings.*.json
+
+# Bloqueo de secretos de usuario (User Secrets)
+secrets.json
+back-end/SetPoint/SetPoint/Properties/launchSettings.json
+
+## --- ANDROID (Ubicado en front-end/SetPoint) ---
+
+# Archivos de salida de compilación
+front-ent/**/build/
+front-ent/.gradle/
+
+# Configuración local del SDK y secretos de firma
+front-ent/local.properties
+front-ent/*.jks
+front-ent/*.keystore
+front-ent/google-services.json
+
+# Archivos específicos de Android Studio / IntelliJ
+front-ent/.idea/caches/
+front-ent/.idea/libraries/
+front-ent/.idea/modules.xml
+front-ent/.idea/workspace.xml
+front-ent/.idea/navEditor.xml
+front-ent/.idea/assetWizardSettings.xml
+front-ent/*.iml
+
+# Capturas y logs de ejecución
+front-ent/captures/
+front-ent/**/externalNativeBuild/
+front-ent/**/.cxx/
+front-ent/SetPoint/.kotlin/errors/errors-1774941414220.log
+/apk
+front-ent/SetPoint/app/src/main/assets/exercise/exe0001.gif
+/front-ent/SetPoint/app/src/main/assets/exercise
+SetPoint/Dockerfile
+SetPoint/Properties/launchSettings.json
+SetPoint/SetPoint.API.csproj
+SetPoint/SetPoint.http
+SetPoint.slnx
+SetPoint.DAL/SetPoint.DAL.csproj
+SetPoint/.config/dotnet-tools.json
+SetPoint.BLL/SetPoint.BLL.csproj
