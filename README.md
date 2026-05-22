@@ -70,7 +70,8 @@ ASP.NET Core Backend
             ⇅
 PostgreSQL
 
-The synchronization engine was built to support **offline training sessions with eventual consistency**, transferring only modified entities through timestamp-based delta replication instead of full dataset replacement.
+The synchronization engine was built to support **offline training sessions with eventual consistency**,
+transferring only modified entities through timestamp-based delta replication instead of full dataset replacement.
 ```
 # Engineering Notes
 
