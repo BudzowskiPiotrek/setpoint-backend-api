@@ -39,7 +39,7 @@ namespace SetPoint.BLL._1.Security
         {
             var issuer = _config["JwtSettings:Issuer"];
             var audience = _config["JwtSettings:Audience"];
-            var expire = int.Parse(_config["JwtSettings:ExpireMinutes"] ?? "60");
+            var expire = int.Parse(_config["JwtSettings:ExpireMinutes"] ?? "7");
 
             var claims = new List<Claim>
             {
