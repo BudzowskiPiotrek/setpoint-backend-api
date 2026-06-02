@@ -26,6 +26,7 @@ using SetPoint.BLL._10.WorkoutExercisesManagement;
 using SetPoint.BLL._10.WorkoutExercisesManagement.Dto;
 using SetPoint.BLL._11.ExerciseSetsManagement;
 using SetPoint.BLL._11.ExerciseSetsManagement.Dto;
+using SetPoint.BLL._12.FeedEventManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
@@ -107,6 +108,7 @@ namespace SetPoint.BLL._0.Sync
                 cfg.CreateMap<WorkoutSessions, WorkoutSessionsDto>().ReverseMap();
                 cfg.CreateMap<WorkoutExercises, WorkoutExercisesDto>().ReverseMap();
                 cfg.CreateMap<ExerciseSets, ExerciseSetsDto>().ReverseMap();
+                cfg.CreateMap<FeedEvent, FeedEventDto>().ReverseMap();
             });
             #endregion
 
@@ -243,49 +245,22 @@ namespace SetPoint.BLL._0.Sync
                 foreach (var ur in relationEntities)
                     if (ur.Status != RelationStatus.Rejected)
                         targetUserIds.Add(ur.UserId == request.UserId ? ur.FriendId : ur.UserId);
-                // 1. Relations that are not rejected
-                // 2. Extract the relation ID
-                // 3. Remove duplicates
-                // 4. Cross-reference that ID list with users who modified their profile since lastSync
-                // 5. 3 f******* hours!!...... 
-                var updatedFriendIds = await context.UsersRelations
-                    .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId) && ur.Status != RelationStatus.Rejected)
-                    .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId)
-                    .Distinct()
-                    .Join(context.Users.Where(u => u.UpdatedAt > request.LastSync), friendId => friendId, user => user.Id, (friendId, user) => friendId).ToListAsync();
+                #region UPDATED FRIENDS (ONLY IF USER UPDATED THEIR PROFILE)
+                //var updatedFriendIds = await context.UsersRelations
+                //    .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId) && ur.Status != RelationStatus.Rejected)
+                //    .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId)
+                //    .Distinct()
+                //    .Join(context.Users.Where(u => u.UpdatedAt > request.LastSync), friendId => friendId, user => user.Id, (friendId, user) => friendId).ToListAsync();
 
-                // ADD = All updated profiles from our contacts
-                foreach (var id in updatedFriendIds)
-                    targetUserIds.Add(id);
-
+                //// ADD = All updated profiles from our contacts
+                //foreach (var id in updatedFriendIds)
+                //    targetUserIds.Add(id);
+                #endregion
                 var userEntities = await context.Users.Where(u => targetUserIds.Contains(u.Id)).ToListAsync();
 
                 response.Users = userEntities
                     .Select(u => _mapper.Map<UserReadDto>(u)).ToList();
 
-                #region OPTIMIZED QUERY BUT NOT FINISHED YET (PROBAR EN PRODUCCION)
-
-                //var activeFriendIds = await context.UsersRelations
-                //    .AsNoTracking()
-                //    .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId) && ur.Status != RelationStatus.Rejected)
-                //    .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId)
-                //    .Distinct()
-                //    .ToListAsync();
-
-                //var candidatesToCheck = new HashSet<Guid>(activeFriendIds) 
-                // { 
-                //    request.UserId 
-                // };
-
-                //var userEntities = await context.Users
-                //    .AsNoTracking()
-                //    .Where(u => candidatesToCheck.Contains(u.Id) && u.UpdatedAt > request.LastSync)
-                //    .ToListAsync();
-
-                //response.Users = userEntities
-                //    .Select(u => _mapper.Map<UserReadDto>(u)).ToList();
-
-                #endregion
                 /////////////////////////////////// ROUTINE REQUESTS
                 var routineReqEntities = await context.RoutineRequests
                     .Where(rr => (rr.SenderId == request.UserId || rr.ReceiverId == request.UserId)
@@ -294,7 +269,14 @@ namespace SetPoint.BLL._0.Sync
                 response.RoutinesRequests = routineReqEntities
                     .Select(rr => _mapper.Map<RoutineRequestDto>(rr)).ToList();
 
+                ////////////////////////////////// FEED EVENT
+                var feedEvent = await context.FeedEvents
+                    .Where(fe => fe.UserId == null && fe.UpdatedAt > request.LastSync).ToListAsync();
 
+                response.FeedEvents = feedEvent
+                    .Select(fe => _mapper.Map<FeedEventDto>(fe)).ToList();
+
+                ////////////////////////////////// TOKEN GENERATION 
                 var userReadDto = await _userBll.GetUserById(userId);
                 if (userReadDto != null)
                 {
