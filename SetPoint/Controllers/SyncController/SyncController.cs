@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using SetPoint.API._2.Controllers._0.Common;
+using SetPoint.API._2.Controllers.Common;
 using SetPoint.API.Common;
 using SetPoint.BLL._0.Sync;
 using SetPoint.BLL._0.Sync.Dto;

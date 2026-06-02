@@ -2,7 +2,7 @@
 using SetPoint.API.Common;
 
 
-namespace SetPoint.API._2.Controllers._0.Common
+namespace SetPoint.API._2.Controllers.Common
 {
     public class BaseController : ControllerBase
     {
