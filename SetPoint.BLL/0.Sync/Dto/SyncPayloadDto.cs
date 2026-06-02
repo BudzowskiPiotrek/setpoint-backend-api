@@ -10,6 +10,7 @@ using SetPoint.BLL._08.RoutineExercisesManagement.Dto;
 using SetPoint.BLL._09.WorkoutSessionsManagement.Dto;
 using SetPoint.BLL._10.WorkoutExercisesManagement.Dto;
 using SetPoint.BLL._11.ExerciseSetsManagement.Dto;
+using SetPoint.BLL._12.FeedEventManagement.Dto;
 using System.Text.Json.Serialization;
 
 namespace SetPoint.BLL._0.Sync.Dto
@@ -54,5 +55,8 @@ namespace SetPoint.BLL._0.Sync.Dto
 
         [JsonPropertyName("exerciseSets")]
         public List<ExerciseSetsDto> ExerciseSets { get; set; } = new();
+
+        [JsonPropertyName("feedEvents")]
+        public List<FeedEventDto> FeedEvents { get; set; } = new();
     }
 }
