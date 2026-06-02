@@ -71,6 +71,11 @@ namespace SetPoint.BLL._07.RoutinesManagement
                 return await context.SaveChangesAsync() > 0;
             }
         }
+
+        public async Task<bool> CloneRoutineForUserAsync(Guid routineId, Guid userId)
+        {
+            return true;
+        }
         #endregion
     }
 }

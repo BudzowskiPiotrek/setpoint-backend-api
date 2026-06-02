@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SetPoint.BLL._07.RoutineRequestManagement.Dto;
+using SetPoint.BLL._07.RoutinesManagement;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
@@ -17,14 +18,17 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
 
         private readonly string _connectionString;
 
+        private readonly IRoutineBll _routine;
+
         #endregion
 
 
         #region Constructors
 
-        public RoutineRequestBll(IConfiguration config)
+        public RoutineRequestBll(IConfiguration config, IRoutineBll routine)
         {
             _config = config;
+            _routine = routine;
             // Retrieve the connection string from configuration
             _connectionString = _config.GetConnectionString("PostgreConnection") ??
                  throw new InvalidOperationException("Connection string 'PostgreConnection' not found.");
@@ -59,7 +63,6 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
                 }
                 else
                 {
-
                     if (existing.Status == RequestStatus.Rejected)
                     {
                         _mapper.Map(dto, existing);
@@ -74,6 +77,11 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
                             existing.DeletedAt = null;
                         }
 
+                        if (dto.Status == RequestStatus.Accepted)
+                        {
+                            var copy = await _routine.CloneRoutineForUserAsync(existing.RoutineId, existing.ReceiverId);
+                            if (!copy) return false;
+                        }
                         _mapper.Map(dto, existing);
                         context.RoutineRequests.Update(existing);
                     }
@@ -82,11 +90,9 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
                         return true;
                     }
                 }
-
                 return await context.SaveChangesAsync() > 0;
             }
         }
-
         #endregion
     }
 }
