@@ -40,7 +40,7 @@ namespace SetPoint.DAL._2.Context
         public DbSet<WorkoutExercises> WorkoutExercises { get; set; }
         public DbSet<ExerciseSets> ExerciseSets { get; set; }
 
-
+        public DbSet<FeedEvent> FeedEvents { get; set; }
         public DbSet<Logs> Logs { get; set; }
 
         #endregion
