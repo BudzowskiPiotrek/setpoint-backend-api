@@ -37,8 +37,8 @@ namespace SetPoint.BLL._04.ExercisesManagement
         }
         #endregion
 
-        #region Methods
 
+        #region Methods
         public async Task<bool> SyncExercise(ExercisesDto dto)
         {
             using (var context = new SetPointDbContext(_connectionString))
@@ -71,99 +71,6 @@ namespace SetPoint.BLL._04.ExercisesManagement
                 return await context.SaveChangesAsync() > 0;
             }
         }
-
-        public async Task<bool> CreateExercise(ExercisesDto exerciseDto)
-        {
-            if (exerciseDto == null)
-                throw new Exception("ExercisesDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exists = await context.Exercises.AnyAsync(e => e.Name == exerciseDto.Name && e.DeletedAt == null);
-
-                if (exists)
-                    throw new InvalidOperationException("An exercise with this name already exists.");
-
-                var exerciseEntity = _mapper.Map<Exercise>(exerciseDto);
-
-                if (exerciseEntity.Id == Guid.Empty)
-                {
-                    exerciseEntity.Id = Guid.NewGuid();
-                }
-                exerciseEntity.CreatedAt = DateTime.UtcNow;
-
-                await context.Exercises.AddAsync(exerciseEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> UpdateExercise(ExercisesDto exerciseDto)
-        {
-            if (exerciseDto == null)
-                throw new Exception("ExercisesDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exerciseEntity = await context.Exercises.FirstOrDefaultAsync(e => e.Id == exerciseDto.Id && e.DeletedAt == null);
-
-                if (exerciseEntity == null)
-                    throw new InvalidOperationException("Exercise not found.");
-
-                if (!String.IsNullOrWhiteSpace(exerciseDto.Name))
-                    exerciseEntity.Name = exerciseDto.Name;
-
-                if (!String.IsNullOrWhiteSpace(exerciseDto.Description))
-                    exerciseEntity.Description = exerciseDto.Description;
-
-                exerciseEntity.ImageUrl = exerciseDto.ImageUrl;
-                exerciseEntity.EquipmentType = exerciseDto.EquipmentType;
-                exerciseEntity.UpdatedAt = DateTime.UtcNow;
-
-                context.Exercises.Update(exerciseEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> DeleteExercise(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exerciseEntity = await context.Exercises.FirstOrDefaultAsync(e => e.Id == id && e.DeletedAt == null);
-
-                if (exerciseEntity == null)
-                    throw new InvalidOperationException("Exercise not found.");
-
-                exerciseEntity.DeletedAt = DateTime.UtcNow;
-
-                context.Exercises.Update(exerciseEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<IEnumerable<ExercisesDto>> GetAllExercises()
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exercises = await context.Exercises.Where(e => e.DeletedAt == null).ToListAsync();
-
-                return _mapper.Map<IEnumerable<ExercisesDto>>(exercises);
-            }
-        }
-
-        public async Task<ExercisesDto?> GetExerciseById(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exerciseEntity = await context.Exercises
-                    .FirstOrDefaultAsync(e => e.Id == id && e.DeletedAt == null);
-
-                return exerciseEntity == null ? null : _mapper.Map<ExercisesDto>(exerciseEntity);
-            }
-        }
-
         #endregion
     }
 }

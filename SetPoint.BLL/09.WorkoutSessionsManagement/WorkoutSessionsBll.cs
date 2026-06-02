@@ -38,8 +38,8 @@ namespace SetPoint.BLL._09.WorkoutSessionsManagement
 
         #endregion
 
-        #region Methods
 
+        #region Methods
         public async Task<bool> SyncWorkoutSession(WorkoutSessionsDto dto)
         {
             using (var context = new SetPointDbContext(_connectionString))
@@ -73,124 +73,6 @@ namespace SetPoint.BLL._09.WorkoutSessionsManagement
                 return await context.SaveChangesAsync() > 0;
             }
         }
-
-        public async Task<bool> CreateSession(WorkoutSessionsDto workoutDto)
-        {
-            if (workoutDto == null)
-                throw new Exception("WorkoutSessionsDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exists = await context.WorkoutSessions.AnyAsync(w => w.UserId == workoutDto.UserId && w.Date == workoutDto.Date && w.DeletedAt == null);
-
-                if (exists)
-                    throw new InvalidOperationException("A workout session for this user on the specified date already exists.");
-
-                var entity = _mapper.Map<WorkoutSessions>(workoutDto);
-
-                if (entity.Id == Guid.Empty)
-                    entity.Id = Guid.NewGuid();
-
-                entity.CreatedAt = DateTime.UtcNow;
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = entity.UserId,
-                    Type = $"Started workout session at {entity.CreatedAt}"
-                };
-
-                await context.Logs.AddAsync(log);
-                await context.WorkoutSessions.AddAsync(entity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> UpdateSession(WorkoutSessionsDto workoutDto)
-        {
-            if (workoutDto == null)
-                throw new Exception("WorkoutSessionsDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exists = await context.WorkoutSessions.AnyAsync(w => w.UserId == workoutDto.UserId && w.Date == workoutDto.Date && w.DeletedAt == null);
-
-                if (exists)
-                    throw new InvalidOperationException("A workout session for this user on the specified date already exists.");
-
-                var entity = await context.WorkoutSessions.FirstOrDefaultAsync(w => w.Id == workoutDto.Id && w.DeletedAt == null);
-
-                if (entity == null)
-                    throw new InvalidOperationException("Workout session not found.");
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = entity.UserId,
-                    Type = $"OLD DATA BEFORE UPDATE: Duration: {entity.Date}, Date: {entity.DurationMinutes}, Notes: {entity.Notes}"
-                };
-
-                entity.Date = workoutDto.Date;
-                entity.DurationMinutes = workoutDto.DurationMinutes;
-                entity.Notes = workoutDto.Notes;
-                entity.UpdatedAt = DateTime.UtcNow;
-
-                await context.Logs.AddAsync(log);
-                context.WorkoutSessions.Update(entity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> DeleteSession(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var entity = await context.WorkoutSessions.FirstOrDefaultAsync(w => w.Id == id && w.DeletedAt == null);
-
-                if (entity == null)
-                    throw new InvalidOperationException("Workout session not found.");
-
-                entity.DeletedAt = DateTime.UtcNow;
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = entity.UserId,
-                    Type = $"Deleted workout session from date: {entity.Date}"
-                };
-
-                await context.Logs.AddAsync(log);
-                context.WorkoutSessions.Update(entity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<IEnumerable<WorkoutSessionsDto>> GetAllPersonalSessions(Guid userId)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var sessions = await context.WorkoutSessions.Where(w => w.UserId == userId && w.DeletedAt == null).OrderByDescending(w => w.Date).ToListAsync();
-
-                return _mapper.Map<IEnumerable<WorkoutSessionsDto>>(sessions);
-            }
-        }
-
-        public async Task<WorkoutSessionsDto?> GetSessionById(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var entity = await context.WorkoutSessions.FirstOrDefaultAsync(w => w.Id == id && w.DeletedAt == null);
-
-                return entity == null ? null : _mapper.Map<WorkoutSessionsDto>(entity);
-            }
-        }
-
         #endregion
     }
 }

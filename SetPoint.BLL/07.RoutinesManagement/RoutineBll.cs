@@ -39,7 +39,6 @@ namespace SetPoint.BLL._07.RoutinesManagement
 
 
         #region Methods
-
         public async Task<bool> SyncRoutine(RoutineDto dto)
         {
             using (var context = new SetPointDbContext(_connectionString))
@@ -70,125 +69,6 @@ namespace SetPoint.BLL._07.RoutinesManagement
                     }
                 }
                 return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> CreateRoutine(RoutineDto routineDto)
-        {
-            if (routineDto == null)
-                throw new Exception("RoutineDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-
-                var routineEntity = _mapper.Map<Routines>(routineDto);
-
-                if (routineEntity.Id == Guid.Empty)
-                    routineEntity.Id = Guid.NewGuid();
-
-                routineEntity.CreatedAt = DateTime.UtcNow;
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = routineEntity.UserId,
-                    Type = $"Created routine: {routineDto.Name}"
-                };
-
-                await context.Logs.AddAsync(log);
-                await context.Routines.AddAsync(routineEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> UpdateRoutine(RoutineDto routineDto)
-        {
-            if (routineDto == null)
-                throw new Exception("RoutineDto cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var routineEntity = await context.Routines.FirstOrDefaultAsync(r => r.Id == routineDto.Id && r.DeletedAt == null);
-
-                if (routineEntity == null)
-                    throw new InvalidOperationException("Routine not found.");
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = routineEntity.UserId,
-                    Type = $"OLD DATA BEFORE UPDATE: Name: {routineEntity.Name}, Description: {routineEntity.Description}"
-                };
-
-                if (!string.IsNullOrWhiteSpace(routineDto.Name))
-                    routineEntity.Name = routineDto.Name;
-
-                routineEntity.Description = routineDto.Description;
-                routineEntity.UpdatedAt = DateTime.UtcNow;
-
-                await context.Logs.AddAsync(log);
-                context.Routines.Update(routineEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> DeleteRoutine(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var routineEntity = await context.Routines.FirstOrDefaultAsync(r => r.Id == id && r.DeletedAt == null);
-
-                if (routineEntity == null)
-                    throw new InvalidOperationException("Routine not found.");
-
-                routineEntity.DeletedAt = DateTime.UtcNow;
-
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = routineEntity.UserId,
-                    Type = $"Deleted routine: {routineEntity.Name}"
-                };
-
-                await context.Logs.AddAsync(log);
-                context.Routines.Update(routineEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<IEnumerable<RoutineDto>> GetAllPersonalRoutines(Guid userId)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var routines = await context.Routines.Where(r => r.UserId == userId && r.DeletedAt == null).ToListAsync();
-
-                return _mapper.Map<IEnumerable<RoutineDto>>(routines);
-            }
-        }
-
-        public async Task<IEnumerable<RoutineDto>> GetAllRoutines()
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var routines = await context.Routines.Where(r => r.DeletedAt == null).ToListAsync();
-
-                return _mapper.Map<IEnumerable<RoutineDto>>(routines);
-            }
-        }
-
-        public async Task<RoutineDto?> GetRoutineById(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var routineEntity = await context.Routines.FirstOrDefaultAsync(r => r.Id == id && r.DeletedAt == null);
-
-                return routineEntity == null ? null : _mapper.Map<RoutineDto>(routineEntity);
             }
         }
         #endregion

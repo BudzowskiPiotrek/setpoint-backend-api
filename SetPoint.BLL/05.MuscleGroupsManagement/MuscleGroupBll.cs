@@ -40,7 +40,6 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement
 
 
         #region Methods
-
         public async Task<bool> SyncMuscleGroup(MuscleGroupDto dto)
         {
             using (var context = new SetPointDbContext(_connectionString))
@@ -73,93 +72,6 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement
                 return await context.SaveChangesAsync() > 0;
             }
         }
-
-        public async Task<bool> CreateMuscleGroup(MuscleGroupDto muscleGroupDto)
-        {
-            if (muscleGroupDto == null)
-                throw new Exception("Muscle group cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var exists = await context.MuscleGroups.AnyAsync(m => m.Name == muscleGroupDto.Name && m.DeletedAt == null);
-
-                if (exists)
-                    throw new InvalidOperationException("A muscle group with this name already exists.");
-
-                var muscleGroupEntity = _mapper.Map<MuscleGroup>(muscleGroupDto);
-
-                if (muscleGroupEntity.Id == Guid.Empty)
-                    muscleGroupEntity.Id = Guid.NewGuid();
-
-                muscleGroupEntity.CreatedAt = DateTime.UtcNow;
-
-                await context.MuscleGroups.AddAsync(muscleGroupEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> UpdateMuscleGroup(MuscleGroupDto muscleGroupDto)
-        {
-            if (muscleGroupDto == null)
-                throw new Exception("Muscle group cannot be null.");
-
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var muscleEntity = await context.MuscleGroups.FirstOrDefaultAsync(m => m.Id == muscleGroupDto.Id && m.DeletedAt == null);
-
-                if (muscleEntity == null)
-                    throw new InvalidOperationException("Muscle group not found.");
-
-                if (!string.IsNullOrWhiteSpace(muscleGroupDto.Name))
-                    muscleEntity.Name = muscleGroupDto.Name;
-
-                muscleEntity.Description = muscleGroupDto.Description;
-                muscleEntity.UpdatedAt = DateTime.UtcNow;
-
-                context.MuscleGroups.Update(muscleEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<bool> DeleteMuscleGroup(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var muscleGroupEntity = await context.MuscleGroups.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
-
-                if (muscleGroupEntity == null)
-                    throw new InvalidOperationException("Muscle group not found.");
-
-                muscleGroupEntity.DeletedAt = DateTime.UtcNow;
-
-                context.MuscleGroups.Update(muscleGroupEntity);
-
-                return await context.SaveChangesAsync() > 0;
-            }
-        }
-
-        public async Task<IEnumerable<MuscleGroupDto>> GetAllMuscleGroups()
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var groups = await context.MuscleGroups.Where(m => m.DeletedAt == null).ToListAsync();
-
-                return _mapper.Map<IEnumerable<MuscleGroupDto>>(groups);
-            }
-        }
-
-        public async Task<MuscleGroupDto?> GetMuscleGroupById(Guid id)
-        {
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                var muscleGroupEntity = await context.MuscleGroups.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
-
-                return muscleGroupEntity == null ? null : _mapper.Map<MuscleGroupDto>(muscleGroupEntity);
-            }
-        }
-
         #endregion
     }
 }

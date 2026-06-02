@@ -15,10 +15,6 @@ namespace SetPoint.API.Controllers
 
         private readonly IUserBll _userBll;
 
-        private static readonly string _emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-
-        private static readonly string _passwordPattern = @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$";
-
         #endregion
 
 
@@ -32,7 +28,6 @@ namespace SetPoint.API.Controllers
 
 
         #region Methods
-
         [EnableRateLimiting("SincronizacionLenta")]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
@@ -64,7 +59,6 @@ namespace SetPoint.API.Controllers
                 return ErrorResponse(ex, "Login error");
             }
         }
-
         #endregion
     }
 }
