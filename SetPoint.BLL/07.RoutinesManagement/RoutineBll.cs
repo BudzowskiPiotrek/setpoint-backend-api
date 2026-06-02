@@ -74,7 +74,43 @@ namespace SetPoint.BLL._07.RoutinesManagement
 
         public async Task<bool> CloneRoutineForUserAsync(Guid routineId, Guid userId)
         {
-            return true;
+            try
+            {
+                using (var context = new SetPointDbContext(_connectionString))
+                {
+                    var existing = await context.Routines.AsNoTracking().FirstOrDefaultAsync(r => r.Id == routineId);
+
+                    if (existing == null) return false;
+
+                    var dateNow = DateTime.UtcNow;
+
+                    var cloneRoutine = _mapper.Map<Routines>(existing);
+                    cloneRoutine.Id = Guid.NewGuid();
+                    cloneRoutine.UserId = userId;
+                    cloneRoutine.CreatedAt = dateNow;
+                    cloneRoutine.UpdatedAt = dateNow;
+
+                    await context.Routines.AddAsync(cloneRoutine);
+
+                    var exercises = await context.RoutineExercises.AsNoTracking().Where(re => re.RoutineId == routineId).ToListAsync();
+
+                    foreach (var exercise in exercises)
+                    {
+                        var cloneExercise = _mapper.Map<RoutineExercises>(exercise);
+                        cloneExercise.Id = Guid.NewGuid();
+                        cloneExercise.RoutineId = cloneRoutine.Id;
+                        cloneExercise.CreatedAt = dateNow;
+                        cloneExercise.UpdatedAt = dateNow;
+                        await context.RoutineExercises.AddAsync(cloneExercise);
+                    }
+
+                    return await context.SaveChangesAsync() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
         #endregion
     }
