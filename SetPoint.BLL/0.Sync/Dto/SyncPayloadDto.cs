@@ -1,4 +1,5 @@
 ﻿using SetPoint.BLL._02.UserRelationManagement.Dto;
+using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
 using SetPoint.BLL._04.ExercisesManagement.Dto;
@@ -25,6 +26,9 @@ namespace SetPoint.BLL._0.Sync.Dto
 
         [JsonPropertyName("userRelations")]
         public List<UserRelationDto> UserRelations { get; set; } = new();
+
+        [JsonPropertyName("userInvitations")]
+        public List<UsersInvitationDto> UserInvitations { get; set; } = new();
 
         [JsonPropertyName("bodyMeasurements")]
         public List<BodyMeasurementsDto> BodyMeasurements { get; set; } = new();
