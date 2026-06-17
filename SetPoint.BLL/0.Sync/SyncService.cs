@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using SetPoint.BLL._0.Sync.Dto;
 using SetPoint.BLL._02.UserRelationManagement;
 using SetPoint.BLL._02.UserRelationManagement.Dto;
+using SetPoint.BLL._02.UsersInvitationManagement;
+using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
@@ -48,6 +50,7 @@ namespace SetPoint.BLL._0.Sync
         private readonly IExerciseSetsBll _exerciseSetBll;
         private readonly IUserBll _userBll;
         private readonly IUserRelationBll _userRelationBll;
+        private readonly IUsersInvitationBll _usersInvitationBll;
         private readonly IRoutineRequestBll _routineRequestBll;
 
         private readonly ITokenService _tokenService;
@@ -74,6 +77,7 @@ namespace SetPoint.BLL._0.Sync
             IExerciseSetsBll exerciseSetBll,
             IUserBll userBll,
             IUserRelationBll userRelationBll,
+            IUsersInvitationBll usersInvitationBll,
             IRoutineRequestBll routineRequestBll)
         {
             _tokenService = tokenService;
@@ -89,6 +93,7 @@ namespace SetPoint.BLL._0.Sync
             _exerciseSetBll = exerciseSetBll;
             _userBll = userBll;
             _userRelationBll = userRelationBll;
+            _usersInvitationBll = usersInvitationBll;
             _routineRequestBll = routineRequestBll;
 
 
@@ -98,6 +103,7 @@ namespace SetPoint.BLL._0.Sync
                 cfg.CreateMap<Users, UserDto>().ReverseMap();
                 cfg.CreateMap<Users, UserReadDto>().ReverseMap();
                 cfg.CreateMap<UsersRelations, UserRelationDto>().ReverseMap();
+                cfg.CreateMap<UsersInvitations, UsersInvitationDto>().ReverseMap();
                 cfg.CreateMap<BodyMeasurements, BodyMeasurementsDto>().ReverseMap();
                 cfg.CreateMap<Exercise, ExercisesDto>().ReverseMap();
                 cfg.CreateMap<MuscleGroup, MuscleGroupDto>().ReverseMap();
@@ -144,6 +150,7 @@ namespace SetPoint.BLL._0.Sync
             await ProcessCollection(payload.ExerciseSets, _exerciseSetBll.SyncExerciseSet, x => x.Id.ToString(), response);
             await ProcessCollection(payload.UserRelations, _userRelationBll.SyncUserRelation, x => x.Id.ToString(), response);
             await ProcessCollection(payload.RoutinesRequests, _routineRequestBll.SyncRoutineRequest, x => x.Id.ToString(), response);
+            await ProcessCollection(payload.UserInvitations, _usersInvitationBll.CreateAndSendInvitationAsync, x => x.Id.ToString(), response);
 
             // --- Logging ---
             await LogSyncResult(userId, response);
@@ -288,6 +295,7 @@ namespace SetPoint.BLL._0.Sync
         }
 
         #endregion
+
 
         #region Private Helpers
         private async Task ProcessCollection<T>(
