@@ -26,9 +26,11 @@ namespace SetPoint.DAL._2.Context
 
 
         #region DbSets
-
+        // --------------------------------------------------------------------------------------------------- Users, Relations and Invitations
         public DbSet<Users> Users { get; set; }
         public DbSet<UsersRelations> UsersRelations { get; set; }
+        public DbSet<UsersInvitations> UsersInvitations { get; set; }
+        // --------------------------------------------------------------------------------------------------- Body Measurements, Exercises, Routines, Workout Sessions
         public DbSet<BodyMeasurements> BodyMeasurements { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<MuscleGroup> MuscleGroups { get; set; }
@@ -39,10 +41,10 @@ namespace SetPoint.DAL._2.Context
         public DbSet<WorkoutSessions> WorkoutSessions { get; set; }
         public DbSet<WorkoutExercises> WorkoutExercises { get; set; }
         public DbSet<ExerciseSets> ExerciseSets { get; set; }
-
+        // --------------------------------------------------------------------------------------------------- Feed Events, Logs
         public DbSet<FeedEvent> FeedEvents { get; set; }
         public DbSet<Logs> Logs { get; set; }
-
+        // --------------------------------------------------------------------------------------------------------------
         #endregion
 
 
