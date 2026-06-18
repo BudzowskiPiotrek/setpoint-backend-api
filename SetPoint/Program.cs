@@ -1,7 +1,12 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SetPoint.BLL._0.Common;
+using SetPoint.BLL._0.Security;
 using SetPoint.BLL._0.Sync;
 using SetPoint.BLL._02.UserRelationManagement;
+using SetPoint.BLL._02.UsersInvitationManagement;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._03.BodyMeasurementsManagement;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
@@ -15,6 +20,7 @@ using SetPoint.BLL._09.WorkoutSessionsManagement;
 using SetPoint.BLL._1.Security;
 using SetPoint.BLL._10.WorkoutExercisesManagement;
 using SetPoint.BLL._11.ExerciseSetsManagement;
+using SetPoint.DAL._2.Context;
 using System.Text;
 using System.Threading.RateLimiting;
 //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -28,18 +34,26 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()   // Permite cualquier origen (tu IP de móvil)
-              .AllowAnyMethod()   // Permite GET, POST, PUT, DELETE, etc.
-              .AllowAnyHeader();  // Permite cualquier cabecera (tokens, etc.)
+        policy.AllowAnyOrigin()   // Allows any origin (such as your mobile IP address)
+      .AllowAnyMethod()           // Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
+      .AllowAnyHeader();          // Allows any request header (tokens, content-type, etc.)
     });
 
     options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.WithOrigins("*************") // POR SI HAGO PAGINA WEB TAMBIEN, REEMPLAZA CON TU DOMINIO REAL
+        policy.WithOrigins("")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
+//------------------------------------------------------------------------------------------ Configure Database Context ----------------------
+builder.Services.AddDbContext<SetPointDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection")));
+//------------------------------------------------------------------------------------------ Configure AutoMapper -----------------------------
+builder.Services.AddSingleton(provider => new MapperConfiguration(cfg =>
+{
+    cfg.AddProfile(new MappingProfile());
+}).CreateMapper());
 //------------------------------------------------------------------------------------------ Dependency Injection for BLL and Services --------
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IRoutineBll, RoutineBll>();
@@ -48,6 +62,7 @@ builder.Services.AddScoped<IMuscleGroupBll, MuscleGroupBll>();
 builder.Services.AddScoped<IExerciseSetsBll, ExerciseSetsBll>();
 builder.Services.AddScoped<IUserRelationBll, UserRelationBll>();
 builder.Services.AddScoped<IRoutineRequestBll, RoutineRequestBll>();
+builder.Services.AddScoped<IUsersInvitationBll, UsersInvitationBll>();
 builder.Services.AddScoped<IWorkoutSessionsBll, WorkoutSessionsBll>();
 builder.Services.AddScoped<IRoutineExercisesBll, RoutineExercisesBll>();
 builder.Services.AddScoped<IBodyMeasurementsBll, BodyMeasurementsBll>();
@@ -56,7 +71,8 @@ builder.Services.AddScoped<IExerciseMuscleGroupBll, ExerciseMuscleGroupBll>();
 //------------------------------------------------------------------------------------------ Dependency Injection Services --------------------
 builder.Services.AddScoped<ISyncService, SyncService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 //------------------------------------------------------------------------------------------ Configure JWT Authentication ---------------------
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -104,10 +120,6 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 //---------------------------------------------------------------------------------------------------------------------------------------------
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    options.ListenAnyIP(8000);
-//});
 var app = builder.Build();
 app.UseForwardedHeaders();
 //------------------------------------------------------------------------------------------ Configure the HTTP request pipeline. -------------
@@ -127,9 +139,9 @@ else
     app.UseHttpsRedirection();
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
-app.UseRouting(); ///////// Asegura que el middleware de enrutamiento se ejecute antes de la autenticación y autorización
-app.UseRateLimiter(); ///// Asegura que el middleware de limitación de tasa se ejecute antes de la autorización para proteger los endpoints
-app.UseAuthentication(); // Asegura que el middleware de autenticación se ejecute antes de la autorización
-app.UseAuthorization(); /// Asegura que el middleware de autorización se ejecute después de la autenticación y limitación de tasa
-app.MapControllers(); ///// Asegura que los endpoints de los controladores estén disponibles para el enrutamiento
+app.UseRouting();        // Ensures routing executes before authentication and authorization
+app.UseRateLimiter();    // Ensures rate limiting executes before authorization to protect endpoints
+app.UseAuthentication(); // Ensures authentication executes before authorization
+app.UseAuthorization();  // Ensures authorization executes after authentication and rate limiting
+app.MapControllers();    // Ensures controller endpoints are mapped and available for routing
 app.Run();
