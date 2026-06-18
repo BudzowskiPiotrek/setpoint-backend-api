@@ -67,7 +67,7 @@ namespace SetPoint.API.Controllers.SyncController
                 return StatusCode(500, new ApiResponse
                 {
                     WithError = true,
-                    Message = $"Push error: {detailedError}",
+                    Message = $"Push error",
                     StatusCode = 500
                 });
             }
@@ -106,7 +106,7 @@ namespace SetPoint.API.Controllers.SyncController
                 return StatusCode(500, new ApiResponse
                 {
                     WithError = true,
-                    Message = $"Push error: {detailedError}",
+                    Message = $"Pull error",
                     StatusCode = 500
                 });
             }

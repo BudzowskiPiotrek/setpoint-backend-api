@@ -21,7 +21,7 @@ namespace SetPoint.API._2.Controllers.Common
             return StatusCode(500, new ApiResponse
             {
                 WithError = true,
-                Message = $"{customMessage}: {ex.Message}",
+                Message = $"{customMessage}",
                 StatusCode = 500
             });
         }
