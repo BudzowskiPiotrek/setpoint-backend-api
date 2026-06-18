@@ -34,7 +34,7 @@ namespace SetPoint.DAL._1.Entity
         /// Gets or sets the identifier of the user who generated and sent the invitation.
         /// </summary>
         [Column("SENDER_USER_ID", Order = 7)]
-        public Guid SenderUserId { get; set; }
+        public Guid? SenderUserId { get; set; }
 
         /// <summary>
         /// Gets or sets the expiration date and time after which the invitation is no longer valid.
