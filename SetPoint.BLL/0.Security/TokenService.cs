@@ -11,16 +11,13 @@ namespace SetPoint.BLL._1.Security
     public class TokenService : ITokenService
     {
         #region Fields
-
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
         private readonly JwtSecurityTokenHandler _tokenHandler = new();
-
         #endregion
 
 
         #region Constructors
-
         public TokenService(IConfiguration config)
         {
             _config = config;
@@ -63,7 +60,6 @@ namespace SetPoint.BLL._1.Security
 
             return _tokenHandler.WriteToken(token);
         }
-
         #endregion
     }
 }

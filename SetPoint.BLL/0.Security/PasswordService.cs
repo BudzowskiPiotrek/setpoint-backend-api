@@ -5,14 +5,11 @@ namespace SetPoint.BLL._1.Security
     {
 
         #region Fields
-
         private readonly PasswordHasher<object> _hasher = new PasswordHasher<object>();
-
         #endregion
 
 
         #region Methods
-
         public string HashPassword(string password)
         {
             return _hasher.HashPassword(null, password);
@@ -37,8 +34,6 @@ namespace SetPoint.BLL._1.Security
                     return false;
             }
         }
-
         #endregion
-
     }
 }
