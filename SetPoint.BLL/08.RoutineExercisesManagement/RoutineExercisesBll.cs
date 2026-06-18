@@ -15,17 +15,10 @@ namespace SetPoint.BLL._08.RoutineExercisesManagement
 
 
         #region Constructors
-        public RoutineExercisesBll(SetPointDbContext context)
+        public RoutineExercisesBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<RoutineExerciseDto, RoutineExercises>();
-                cfg.CreateMap<RoutineExercises, RoutineExerciseDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

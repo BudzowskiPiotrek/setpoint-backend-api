@@ -5,7 +5,6 @@ using SetPoint.BLL._0.Sync.Dto;
 using SetPoint.BLL._02.UserRelationManagement;
 using SetPoint.BLL._02.UserRelationManagement.Dto;
 using SetPoint.BLL._02.UsersInvitationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
@@ -76,7 +75,8 @@ namespace SetPoint.BLL._0.Sync
             IUserBll userBll,
             IUserRelationBll userRelationBll,
             IUsersInvitationBll usersInvitationBll,
-            IRoutineRequestBll routineRequestBll)
+            IRoutineRequestBll routineRequestBll,
+            IMapper mapper)
         {
             _tokenService = tokenService;
             _context = context;
@@ -94,37 +94,13 @@ namespace SetPoint.BLL._0.Sync
             _userRelationBll = userRelationBll;
             _usersInvitationBll = usersInvitationBll;
             _routineRequestBll = routineRequestBll;
-
-
-            #region Mapper Configuration
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Users, UserDto>().ReverseMap();
-                cfg.CreateMap<Users, UserReadDto>().ReverseMap();
-                cfg.CreateMap<UsersRelations, UserRelationDto>().ReverseMap();
-                cfg.CreateMap<UsersInvitations, UsersInvitationDto>().ReverseMap();
-                cfg.CreateMap<BodyMeasurements, BodyMeasurementsDto>().ReverseMap();
-                cfg.CreateMap<Exercise, ExercisesDto>().ReverseMap();
-                cfg.CreateMap<MuscleGroup, MuscleGroupDto>().ReverseMap();
-                cfg.CreateMap<ExerciseMuscleGroup, ExerciseMuscleDto>().ReverseMap();
-                cfg.CreateMap<Routines, RoutineDto>().ReverseMap();
-                cfg.CreateMap<RoutineRequests, RoutineRequestDto>().ReverseMap();
-                cfg.CreateMap<RoutineExercises, RoutineExerciseDto>().ReverseMap();
-                cfg.CreateMap<WorkoutSessions, WorkoutSessionsDto>().ReverseMap();
-                cfg.CreateMap<WorkoutExercises, WorkoutExercisesDto>().ReverseMap();
-                cfg.CreateMap<ExerciseSets, ExerciseSetsDto>().ReverseMap();
-                cfg.CreateMap<FeedEvent, FeedEventDto>().ReverseMap();
-            });
-            #endregion
-
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
 
         #endregion
 
 
         #region Methods
-
         public async Task<SyncErrorDetail> ProcessPush(SyncPayloadDto payload, Guid userId)
         {
             var response = new SyncErrorDetail
@@ -286,7 +262,6 @@ namespace SetPoint.BLL._0.Sync
 
             return response;
         }
-
         #endregion
 
 

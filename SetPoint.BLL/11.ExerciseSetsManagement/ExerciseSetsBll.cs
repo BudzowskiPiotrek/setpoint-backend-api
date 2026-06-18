@@ -15,17 +15,10 @@ namespace SetPoint.BLL._11.ExerciseSetsManagement
 
 
         #region Constructors
-        public ExerciseSetsBll(SetPointDbContext context)
+        public ExerciseSetsBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<ExerciseSetsDto, ExerciseSets>();
-                cfg.CreateMap<ExerciseSets, ExerciseSetsDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

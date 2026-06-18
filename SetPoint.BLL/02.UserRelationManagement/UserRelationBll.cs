@@ -15,16 +15,10 @@ namespace SetPoint.BLL._02.UserRelationManagement
 
 
         #region Constructors
-        public UserRelationBll(SetPointDbContext context)
+        public UserRelationBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<UserRelationDto, UsersRelations>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

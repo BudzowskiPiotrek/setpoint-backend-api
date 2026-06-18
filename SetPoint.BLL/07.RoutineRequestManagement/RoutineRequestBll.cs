@@ -17,17 +17,11 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
 
 
         #region Constructors
-        public RoutineRequestBll(IRoutineBll routine, SetPointDbContext context)
+        public RoutineRequestBll(IRoutineBll routine, SetPointDbContext context, IMapper mapper)
         {
             _context = context;
             _routine = routine;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<RoutineRequestDto, RoutineRequests>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

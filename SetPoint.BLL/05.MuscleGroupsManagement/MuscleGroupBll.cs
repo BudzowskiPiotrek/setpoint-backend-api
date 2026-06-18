@@ -15,16 +15,10 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement
 
 
         #region Constructors
-        public MuscleGroupBll(SetPointDbContext context)
+        public MuscleGroupBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<MuscleGroupDto, MuscleGroup>();
-                cfg.CreateMap<MuscleGroup, MuscleGroupDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

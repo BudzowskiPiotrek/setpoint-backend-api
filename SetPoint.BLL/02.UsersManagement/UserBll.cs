@@ -3,7 +3,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.BLL._1.Security;
-using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
 namespace SetPoint.BLL._02.UsersManagement
@@ -18,19 +17,11 @@ namespace SetPoint.BLL._02.UsersManagement
 
 
         #region Constructors
-        public UserBll(IAuthService authService, SetPointDbContext context)
+        public UserBll(IAuthService authService, SetPointDbContext context, IMapper mapper)
         {
             _context = context;
             _authService = authService;
-
-
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Users, UserReadDto>();
-                cfg.CreateMap<UserDto, Users>();
-            });
-
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

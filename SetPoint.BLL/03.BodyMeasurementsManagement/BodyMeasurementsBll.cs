@@ -15,17 +15,10 @@ namespace SetPoint.BLL._03.BodyMeasurementsManagement
 
 
         #region Constructors
-        public BodyMeasurementsBll(SetPointDbContext context)
+        public BodyMeasurementsBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<BodyMeasurementsDto, BodyMeasurements>();
-                cfg.CreateMap<BodyMeasurements, BodyMeasurementsDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

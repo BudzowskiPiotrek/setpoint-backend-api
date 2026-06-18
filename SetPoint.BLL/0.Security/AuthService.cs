@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
@@ -18,19 +17,12 @@ namespace SetPoint.BLL._1.Security
 
 
         #region Constructors
-        public AuthService(IPasswordService passwordService, ITokenService tokenService, SetPointDbContext context)
+        public AuthService(IPasswordService passwordService, ITokenService tokenService, SetPointDbContext context, IMapper mapper)
         {
             _passwordService = passwordService;
             _tokenService = tokenService;
             _context = context;
-
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Users, UserReadDto>();
-                cfg.CreateMap<UserDto, Users>();
-            });
-
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

@@ -15,17 +15,10 @@ namespace SetPoint.BLL._09.WorkoutSessionsManagement
 
 
         #region Constructors
-        public WorkoutSessionsBll(SetPointDbContext context)
+        public WorkoutSessionsBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<WorkoutSessionsDto, WorkoutSessions>();
-                cfg.CreateMap<WorkoutSessions, WorkoutSessionsDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 

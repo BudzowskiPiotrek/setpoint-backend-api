@@ -15,17 +15,10 @@ namespace SetPoint.BLL._07.RoutinesManagement
 
 
         #region Constructors
-        public RoutineBll(SetPointDbContext context)
+        public RoutineBll(SetPointDbContext context, IMapper mapper)
         {
             _context = context;
-
-            // Configure AutoMapper
-            var conMap = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<RoutineDto, Routines>();
-                cfg.CreateMap<Routines, RoutineDto>();
-            });
-            _mapper = conMap.CreateMapper();
+            _mapper = mapper;
         }
         #endregion
 
