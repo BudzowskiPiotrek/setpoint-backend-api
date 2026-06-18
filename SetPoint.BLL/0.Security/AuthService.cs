@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
@@ -13,16 +14,23 @@ namespace SetPoint.BLL._1.Security
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
         private readonly SetPointDbContext _context;
+        private readonly ILogger<AuthService> _logger;
         #endregion
 
 
         #region Constructors
-        public AuthService(IPasswordService passwordService, ITokenService tokenService, SetPointDbContext context, IMapper mapper)
+        public AuthService(
+            IPasswordService passwordService,
+            ITokenService tokenService,
+            SetPointDbContext context,
+            IMapper mapper,
+            ILogger<AuthService> logger)
         {
             _passwordService = passwordService;
             _tokenService = tokenService;
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
         #endregion
 
@@ -52,6 +60,7 @@ namespace SetPoint.BLL._1.Security
 
                 if (failedAttempts >= 3)
                 {
+                    _logger.LogWarning("Login blocked due to failed attempts. UserId: {UserId}", userEntity.Id);
                     log.UserId = userEntity.Id;
                     log.Type = "[WARN] [AUTH] Login Blocked - Too many attempts";
                     await _context.Logs.AddAsync(log);

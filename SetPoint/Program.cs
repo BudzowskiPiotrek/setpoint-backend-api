@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using SetPoint.BLL._0.Common;
 using SetPoint.BLL._0.Security;
 using SetPoint.BLL._0.Sync;
@@ -25,6 +26,9 @@ using System.Text;
 using System.Threading.RateLimiting;
 //---------------------------------------------------------------------------------------------------------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
+//------------------------------------------------------------------------------------------ Configure Serilog logging ------------------------
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration));
 //------------------------------------------------------------------------------------------ Add services to the container. -------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -122,6 +126,27 @@ builder.Services.AddRateLimiter(options =>
 //---------------------------------------------------------------------------------------------------------------------------------------------
 var app = builder.Build();
 app.UseForwardedHeaders();
+//------------------------------------------------------------------------------------------- Configure Serilog request logging and global exception handling 
+app.UseSerilogRequestLogging();
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exceptionHandlerFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception in {Path}", exceptionHandlerFeature?.Path);
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new SetPoint.API.Common.ApiResponse
+        {
+            WithError = true,
+            Message = "Internal server error",
+            StatusCode = 500
+        });
+    });
+});
 //------------------------------------------------------------------------------------------ Configure the HTTP request pipeline. -------------
 if (app.Environment.IsDevelopment())
 {

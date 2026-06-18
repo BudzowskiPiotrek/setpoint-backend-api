@@ -19,7 +19,7 @@ namespace SetPoint.API.Controllers
 
 
         #region Constructors
-        public UserController(IUserBll userBll)
+        public UserController(IUserBll userBll, ILogger<UserController> logger) : base(logger)
         {
             _userBll = userBll;
         }

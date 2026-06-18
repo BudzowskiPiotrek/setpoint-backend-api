@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SetPoint.BLL._0.Sync.Dto;
 using SetPoint.BLL._02.UserRelationManagement;
 using SetPoint.BLL._02.UserRelationManagement.Dto;
@@ -52,7 +52,7 @@ namespace SetPoint.BLL._0.Sync
         private readonly IRoutineRequestBll _routineRequestBll;
 
         private readonly ITokenService _tokenService;
-        private readonly IConfiguration _config;
+        private readonly ILogger<SyncService> _logger;
         private readonly IMapper _mapper;
         private readonly SetPointDbContext _context;
         #endregion
@@ -62,7 +62,6 @@ namespace SetPoint.BLL._0.Sync
         public SyncService(
             ITokenService tokenService,
             SetPointDbContext context,
-            IConfiguration config,
             IBodyMeasurementsBll bodyBll,
             IMuscleGroupBll muscleGroupBll,
             IExercisesBll exercisesBll,
@@ -76,11 +75,12 @@ namespace SetPoint.BLL._0.Sync
             IUserRelationBll userRelationBll,
             IUsersInvitationBll usersInvitationBll,
             IRoutineRequestBll routineRequestBll,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<SyncService> logger)
         {
             _tokenService = tokenService;
             _context = context;
-            _config = config;
+            _logger = logger;
             _bodyBll = bodyBll;
             _muscleGroupBll = muscleGroupBll;
             _exercisesBll = exercisesBll;
@@ -287,6 +287,7 @@ namespace SetPoint.BLL._0.Sync
                 }
                 catch (Exception e)
                 {
+                    _logger.LogError(e, "Failed to synchronize item {ItemId} of the type {EntityType}", id, typeof(T).Name);
                     response.ItemId.Add(id);
                     response.Success.Add(false);
                 }

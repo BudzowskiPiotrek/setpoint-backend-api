@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SetPoint.BLL._0.Security;
 using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.DAL._1.Entity;
@@ -9,6 +10,7 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
     public class UsersInvitationBll : IUsersInvitationBll
     {
         #region Fields
+        private readonly ILogger<UsersInvitationBll> _logger;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly SetPointDbContext _context;
@@ -18,11 +20,16 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
 
 
         #region Constructors
-        public UsersInvitationBll(IConfiguration config, IEmailService emailService, SetPointDbContext context)
+        public UsersInvitationBll(
+            IConfiguration config,
+            IEmailService emailService,
+            SetPointDbContext context,
+            ILogger<UsersInvitationBll> logger)
         {
             _config = config;
             _emailService = emailService;
             _context = context;
+            _logger = logger;
 
             _downloadUrl = _config["EmailSettings:DownloadUrl"]
                 ?? throw new InvalidOperationException("Email DownloadUrl not found in configuration.");
@@ -55,10 +62,8 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
 
             bool emailResult = await _emailService.SendEmailAsync(dto.Email, "SetPoint Invitation", htmlBody);
 
-            if (emailResult)
-            {
-                newInvitation.Sended = true;
-            }
+            if (emailResult) newInvitation.Sended = true;
+            else _logger.LogWarning("Failed to send invitation email to {Email}.", dto.Email);
 
             await _context.UsersInvitations.AddAsync(newInvitation);
             await _context.SaveChangesAsync();

@@ -22,7 +22,7 @@ namespace SetPoint.API.Controllers.SyncController
 
         #region Constructors
 
-        public SyncController(ISyncService syncBll)
+        public SyncController(ISyncService syncBll, ILogger<SyncController> logger) : base(logger)
         {
             _syncBll = syncBll;
         }

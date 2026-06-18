@@ -1,6 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
-using SetPoint.DAL._1.Entity;
+﻿using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
 namespace SetPoint.BLL._01.LogsManagement
@@ -8,15 +6,13 @@ namespace SetPoint.BLL._01.LogsManagement
     public class LogsBll : ILogsBll
     {
         #region Fields
-        public readonly IConfiguration _config;
         private readonly SetPointDbContext _context;
         #endregion
 
 
         #region Constructors
-        public LogsBll(IConfiguration config, SetPointDbContext context)
+        public LogsBll(SetPointDbContext context)
         {
-            _config = config;
             _context = context;
         }
         #endregion
