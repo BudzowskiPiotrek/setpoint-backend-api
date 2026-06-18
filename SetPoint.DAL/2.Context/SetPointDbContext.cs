@@ -5,23 +5,22 @@ namespace SetPoint.DAL._2.Context
 {
     public class SetPointDbContext : DbContext
     {
-        #region Fields
-
-        private readonly string _strConfig;
-
+        #region Constructors
+        // --------------------------------------------------------------------------------------------------- 
+        public SetPointDbContext(DbContextOptions<SetPointDbContext> options) : base(options) { }
+        // --------------------------------------------------------------------------------------------------- 
         #endregion
 
 
-        #region Constructors
+        #region Migration Zone
+        // --------------------------------------------------------------------------------------------------- 
+        //public SetPointDbContext() { }
 
-        public SetPointDbContext(string strConfig)
-        {
-            _strConfig = strConfig;
-        }
-        //public SetPointDbContext()
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
+        //    optionsBuilder.UseNpgsql("");
         //}
-
+        // ---------------------------------------------------------------------------------------------------
         #endregion
 
 
@@ -44,19 +43,7 @@ namespace SetPoint.DAL._2.Context
         // --------------------------------------------------------------------------------------------------- Feed Events, Logs
         public DbSet<FeedEvent> FeedEvents { get; set; }
         public DbSet<Logs> Logs { get; set; }
-        // --------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------
         #endregion
-
-
-        #region Methods
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-
-            optionsBuilder.UseNpgsql(_strConfig);
-
-        }
-
-        #endregion
-
     }
 }

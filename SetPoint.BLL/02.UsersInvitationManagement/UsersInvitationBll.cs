@@ -9,22 +9,20 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
     public class UsersInvitationBll : IUsersInvitationBll
     {
         #region Fields
-        private readonly string _connectionString;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
+        private readonly SetPointDbContext _context;
         private readonly string _downloadUrl;
         private readonly string _activationUrl;
         #endregion
 
 
         #region Constructors
-        public UsersInvitationBll(IConfiguration config, IEmailService emailService)
+        public UsersInvitationBll(IConfiguration config, IEmailService emailService, SetPointDbContext context)
         {
             _config = config;
             _emailService = emailService;
-            // Retrieve the connection string from configuration
-            _connectionString = _config.GetConnectionString("PostgreConnection") ??
-                 throw new InvalidOperationException("Connection string 'PostgreConnection' not found.");
+            _context = context;
 
             _downloadUrl = _config["EmailSettings:DownloadUrl"]
                 ?? throw new InvalidOperationException("Email DownloadUrl not found in configuration.");
@@ -62,11 +60,8 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
                 newInvitation.Sended = true;
             }
 
-            using (var context = new SetPointDbContext(_connectionString))
-            {
-                await context.UsersInvitations.AddAsync(newInvitation);
-                await context.SaveChangesAsync();
-            }
+            await _context.UsersInvitations.AddAsync(newInvitation);
+            await _context.SaveChangesAsync();
 
             return emailResult;
         }

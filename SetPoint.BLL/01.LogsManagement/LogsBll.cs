@@ -8,46 +8,33 @@ namespace SetPoint.BLL._01.LogsManagement
     public class LogsBll : ILogsBll
     {
         #region Fields
-
         public readonly IConfiguration _config;
-
-        public readonly string _connectionString;
-
+        private readonly SetPointDbContext _context;
         #endregion
 
 
         #region Constructors
-
-        public LogsBll(IConfiguration config)
+        public LogsBll(IConfiguration config, SetPointDbContext context)
         {
             _config = config;
-
-            _connectionString = _config.GetConnectionString("PostgreConnection")
-                ?? throw new InvalidOperationException("Connection string 'PostgreConnection' not found.");
+            _context = context;
         }
-
-
         #endregion
 
 
         #region Methods
-
         public async Task<bool> CreateLogAsync(Guid userId, string type)
         {
-            using (var context = new SetPointDbContext(_connectionString))
+            var log = new Logs
             {
-                var log = new Logs
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    Type = type,
-                    CreatedAt = DateTime.UtcNow
-                };
-                context.Logs.Add(log);
-                return (await context.SaveChangesAsync()) > 0;
-            }
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Type = type,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Logs.Add(log);
+            return (await _context.SaveChangesAsync()) > 0;
         }
-
         #endregion
     }
 }
