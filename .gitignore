@@ -95,3 +95,4 @@ SetPoint.slnx
 SetPoint.DAL/SetPoint.DAL.csproj
 SetPoint/.config/dotnet-tools.json
 SetPoint.BLL/SetPoint.BLL.csproj
+*.log
