@@ -45,7 +45,7 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.WithOrigins("")
+        policy.WithOrigins("https://setpoint.info")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

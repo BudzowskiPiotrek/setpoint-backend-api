@@ -96,3 +96,10 @@ SetPoint.DAL/SetPoint.DAL.csproj
 SetPoint/.config/dotnet-tools.json
 SetPoint.BLL/SetPoint.BLL.csproj
 *.log
+SetPoint.API/Properties/launchSettings.json
+SetPoint.API/Dockerfile
+SetPoint.API/.config/dotnet-tools.json
+SetPoint.API/SetPoint.http
+SetPoint.API.Tests/SetPoint.API.Tests.csproj
+SetPoint.API/SetPoint.API.csproj
+*.csproj
