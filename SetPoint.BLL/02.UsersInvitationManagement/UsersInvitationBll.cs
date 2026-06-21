@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SetPoint.BLL._0.Security;
+using SetPoint.BLL._0.Infrastructure;
 using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
@@ -69,6 +70,16 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
             await _context.SaveChangesAsync();
 
             return emailResult;
+        }
+
+        public async Task<bool> AcceptInvitationAsync(Guid token, Guid acceptingUserId)
+        {
+            var invitation = await _context.UsersInvitations.FirstOrDefaultAsync(i => i.Token == token);
+            if (invitation == null) return false;
+
+            invitation.Status = InvitationStatus.Accepted;
+            invitation.UpdatedAt = DateTime.UtcNow;
+            return await _context.SaveChangesAsync() > 0;
         }
         #endregion
     }
