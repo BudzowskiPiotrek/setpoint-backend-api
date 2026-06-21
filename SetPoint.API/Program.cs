@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SetPoint.BLL._0.Common;
-using SetPoint.BLL._0.Security;
+using SetPoint.BLL._0.Infrastructure;
 using SetPoint.BLL._0.Sync;
 using SetPoint.BLL._02.UserRelationManagement;
 using SetPoint.BLL._02.UsersInvitationManagement;
