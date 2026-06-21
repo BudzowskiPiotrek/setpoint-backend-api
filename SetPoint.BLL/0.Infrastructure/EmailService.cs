@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Text;
 
-namespace SetPoint.BLL._0.Security
+namespace SetPoint.BLL._0.Infrastructure
 {
     public class EmailService : IEmailService
     {

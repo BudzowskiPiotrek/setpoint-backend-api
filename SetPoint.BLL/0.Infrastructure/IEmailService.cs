@@ -1,4 +1,4 @@
-﻿namespace SetPoint.BLL._0.Security
+﻿namespace SetPoint.BLL._0.Infrastructure
 {
     public interface IEmailService
     {
