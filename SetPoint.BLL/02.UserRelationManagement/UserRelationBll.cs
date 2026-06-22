@@ -66,9 +66,40 @@ namespace SetPoint.BLL._02.UserRelationManagement
                 }
                 else return true;
             }
-
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> CreateFriendshipAsync(Guid userId, Guid friendId)
+        {
+            var now = DateTime.UtcNow;
+            var existing = await _context.UsersRelations.FirstOrDefaultAsync(r =>
+            (r.UserId == userId && r.FriendId == friendId) ||
+            (r.FriendId == userId && r.UserId == friendId));
+
+            if (existing == null)
+            {
+                var newRelationship = new UsersRelations
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    UserId = userId,
+                    FriendId = friendId,
+                    Status = RelationStatus.Accepted,
+                };
+                _context.UsersRelations.Add(newRelationship);
+                return await _context.SaveChangesAsync() > 0;
+            }
+
+            if (existing.Status == RelationStatus.Accepted)
+                throw new InvalidOperationException("This relation already exists");
+
+            existing.Status = RelationStatus.Accepted;
+            existing.UpdatedAt = now;
+            existing.DeletedAt = null;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         #endregion
     }
 }
