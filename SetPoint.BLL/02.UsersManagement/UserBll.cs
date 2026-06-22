@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SetPoint.BLL._02.UsersManagement.Dto;
 using SetPoint.BLL._1.Security;
+using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
 namespace SetPoint.BLL._02.UsersManagement
@@ -12,16 +13,20 @@ namespace SetPoint.BLL._02.UsersManagement
         #region Fields
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
+        private readonly ITokenService _tokenService;
+        private readonly IPasswordService _passwordService;
         private readonly SetPointDbContext _context;
         #endregion
 
 
         #region Constructors
-        public UserBll(IAuthService authService, SetPointDbContext context, IMapper mapper)
+        public UserBll(SetPointDbContext context, IAuthService authService, IMapper mapper, ITokenService tokenService, IPasswordService passwordService)
         {
             _context = context;
             _authService = authService;
             _mapper = mapper;
+            _tokenService = tokenService;
+            _passwordService = passwordService;
         }
         #endregion
 
@@ -63,6 +68,31 @@ namespace SetPoint.BLL._02.UsersManagement
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId && u.DeletedAt == null);
 
             return user == null ? null : _mapper.Map<UserReadDto>(user);
+        }
+
+        public async Task<LoginResponseDto?> CreateUserAsync(UserDto user)
+        {
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+
+            if (existingUser != null) throw new InvalidOperationException("User with this email already exists.");
+
+            var newUser = new Users
+            {
+                Id = Guid.NewGuid(),
+                FullName = user.FullName,
+                Email = user.Email,
+                PasswordHash = _passwordService.HashPassword(user.Password),
+                CreatedAt = DateTime.UtcNow,
+            };
+            _context.Users.Add(newUser);
+
+            await _context.SaveChangesAsync();
+
+            return new LoginResponseDto
+            {
+                Token = _tokenService.CreateToken(_mapper.Map<UserReadDto>(newUser)),
+                User = _mapper.Map<UserReadDto>(newUser),
+            };
         }
         #endregion
     }

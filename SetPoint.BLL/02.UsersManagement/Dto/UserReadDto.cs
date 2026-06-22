@@ -5,7 +5,7 @@ namespace SetPoint.BLL._02.UsersManagement.Dto
     public class UserReadDto
     {
         [JsonPropertyName("ID")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [JsonPropertyName("CREATED_AT")]
         public DateTime? CreatedAt { get; set; }
