@@ -32,6 +32,7 @@ namespace SetPoint.BLL.Tests.Management
         private readonly Mock<ITokenService> _tokenServiceMock = new();
         private readonly Mock<IPasswordService> _passwordServiceMock = new();
 
+        #region CreateUserAsync
         [Fact]
         public async Task CreateUserAsync_WithValidData_ReturnsLoginResponseDtoAndPersistsUser()
         {
@@ -85,5 +86,6 @@ namespace SetPoint.BLL.Tests.Management
             //---------------------------------------------------------------------------------------------------------------- Assert
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+        #endregion
     }
 }

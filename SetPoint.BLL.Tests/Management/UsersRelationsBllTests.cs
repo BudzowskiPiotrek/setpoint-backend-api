@@ -26,6 +26,7 @@ namespace SetPoint.BLL.Tests.Management
 
         private readonly IMapper _mapper;
 
+        #region CreateFriendshipAsync
         [Fact]
         public async Task CreateFriendshipAsync_WithTwoValidUsers__ReturnsTrueAndPersistsRelation()
         {
@@ -84,5 +85,6 @@ namespace SetPoint.BLL.Tests.Management
             //---------------------------------------------------------------------------------------------------------------- Assert
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+        #endregion
     }
 }
