@@ -72,15 +72,15 @@ namespace SetPoint.BLL._02.UsersManagement
 
         public async Task<LoginResponseDto?> CreateUserAsync(UserDto user)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-
+            var normalizedEmail = user.Email.ToLower().Trim();
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
             if (existingUser != null) throw new InvalidOperationException("User with this email already exists.");
 
             var newUser = new Users
             {
                 Id = Guid.NewGuid(),
                 FullName = user.FullName,
-                Email = user.Email,
+                Email = normalizedEmail,
                 PasswordHash = _passwordService.HashPassword(user.Password),
                 CreatedAt = DateTime.UtcNow,
             };
