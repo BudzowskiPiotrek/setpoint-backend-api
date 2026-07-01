@@ -60,6 +60,14 @@ namespace SetPoint.API.Controllers.InvitationsControler
                 return ErrorResponse(ex, "Error processing invitation");
             }
         }
+
+        [EnableRateLimiting("SincronizacionLenta")]
+        [HttpGet("activate")]
+        [AllowAnonymous]
+        public IActionResult Activate([FromQuery] string token)
+        {
+            return Redirect($"habityfit://activate?token={token}");
+        }
         #endregion
     }
 }
