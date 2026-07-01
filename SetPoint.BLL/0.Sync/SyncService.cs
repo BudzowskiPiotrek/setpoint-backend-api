@@ -134,6 +134,9 @@ namespace SetPoint.BLL._0.Sync
         {
             var response = new SyncPayloadDto();
 
+            DateTime firstDateLogin = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            bool isFirstLogin = (request.LastSync <= firstDateLogin);
+
             /////////////////////////////////// EXERCISES
             var exerciseEntities = await _context.Exercises.AsNoTracking()
                 .Where(e => e.UpdatedAt > request.LastSync).ToListAsync();
@@ -142,7 +145,7 @@ namespace SetPoint.BLL._0.Sync
                 .Select(e => _mapper.Map<ExercisesDto>(e)).ToList();
 
             /////////////////////////////////// MUSCLE GROUPS
-            if (request.LastSync == DateTime.MinValue)
+            if (isFirstLogin)
             {
 
                 var muscleEntities = await _context.MuscleGroups.AsNoTracking()
@@ -153,7 +156,7 @@ namespace SetPoint.BLL._0.Sync
             }
 
             /////////////////////////////////// EXERCISE-MUSCLE
-            if (request.LastSync == DateTime.MinValue || exerciseEntities.Any())
+            if (isFirstLogin || exerciseEntities.Any())
             {
 
                 var exerciseMuscleEntities = await _context.ExerciseMuscleGroups.AsNoTracking()
