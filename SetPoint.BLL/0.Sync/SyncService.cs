@@ -135,35 +135,35 @@ namespace SetPoint.BLL._0.Sync
             var response = new SyncPayloadDto();
             // obtener dto de usuario para generar token
             /////////////////////////////////// BODY
-            var bodyEntities = await _context.BodyMeasurements
+            var bodyEntities = await _context.BodyMeasurements.AsNoTracking()
                 .Where(b => b.IdUser == request.UserId && b.UpdatedAt > request.LastSync).ToListAsync();
 
             response.BodyMeasurements = bodyEntities
                 .Select(b => _mapper.Map<BodyMeasurementsDto>(b)).ToList();
 
             /////////////////////////////////// MUSCLE GROUPS
-            var muscleEntities = await _context.MuscleGroups
+            var muscleEntities = await _context.MuscleGroups.AsNoTracking()
                 .Where(m => m.UpdatedAt > request.LastSync).ToListAsync();
 
             response.MuscleGroups = muscleEntities
                 .Select(m => _mapper.Map<MuscleGroupDto>(m)).ToList();
 
             /////////////////////////////////// EXERCISES
-            var exerciseEntities = await _context.Exercises
+            var exerciseEntities = await _context.Exercises.AsNoTracking()
                 .Where(e => e.UpdatedAt > request.LastSync).ToListAsync();
 
             response.Exercises = exerciseEntities
                 .Select(e => _mapper.Map<ExercisesDto>(e)).ToList();
 
             /////////////////////////////////// EXERCISE-MUSCLE
-            var exerciseMuscleEntities = await _context.ExerciseMuscleGroups
+            var exerciseMuscleEntities = await _context.ExerciseMuscleGroups.AsNoTracking()
                 .Where(em => em.UpdatedAt > request.LastSync).ToListAsync();
 
             response.ExerciseMuscleGroups = exerciseMuscleEntities
                 .Select(em => _mapper.Map<ExerciseMuscleDto>(em)).ToList();
 
             /////////////////////////////////// ROUTINES
-            var routines = await _context.Routines
+            var routines = await _context.Routines.AsNoTracking()
                 .Where(r => r.UserId == request.UserId && r.UpdatedAt > request.LastSync).ToListAsync();
 
             response.Routines = routines
@@ -172,14 +172,14 @@ namespace SetPoint.BLL._0.Sync
             /////////////////////////////////// ROUTINE EXERCISES
             var routineIds = routines.Select(r => r.Id).ToList();
 
-            var routineExEntities = await _context.RoutineExercises
+            var routineExEntities = await _context.RoutineExercises.AsNoTracking()
                 .Where(re => re.UpdatedAt > request.LastSync && routineIds.Contains(re.RoutineId)).ToListAsync();
 
             response.RoutineExercises = routineExEntities
                 .Select(re => _mapper.Map<RoutineExerciseDto>(re)).ToList();
 
             /////////////////////////////////// WORKOUT SESSIONS
-            var sessions = await _context.WorkoutSessions
+            var sessions = await _context.WorkoutSessions.AsNoTracking()
                 .Where(ws => ws.UserId == request.UserId && ws.UpdatedAt > request.LastSync).ToListAsync();
 
             response.WorkoutSessions = sessions
@@ -188,7 +188,7 @@ namespace SetPoint.BLL._0.Sync
             /////////////////////////////////// WORKOUT EXERCISES
             var sessionIds = sessions.Select(ws => ws.Id).ToList();
 
-            var workoutExEntities = await _context.WorkoutExercises
+            var workoutExEntities = await _context.WorkoutExercises.AsNoTracking()
                 .Where(we => we.UpdatedAt > request.LastSync && sessionIds.Contains(we.SessionId)).ToListAsync();
 
             response.WorkoutExercises = workoutExEntities
@@ -197,14 +197,14 @@ namespace SetPoint.BLL._0.Sync
             /////////////////////////////////// SETS
             var workoutExIds = workoutExEntities.Select(we => we.Id).ToList();
 
-            var setEntities = await _context.ExerciseSets
+            var setEntities = await _context.ExerciseSets.AsNoTracking()
                 .Where(es => es.UpdatedAt > request.LastSync && workoutExIds.Contains(es.WorkoutExerciseId)).ToListAsync();
 
             response.ExerciseSets = setEntities
                 .Select(es => _mapper.Map<ExerciseSetsDto>(es)).ToList();
 
             /////////////////////////////////// USER RELATIONS
-            var relationEntities = await _context.UsersRelations
+            var relationEntities = await _context.UsersRelations.AsNoTracking()
                 .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId)
                              && ur.UpdatedAt > request.LastSync).ToListAsync();
 
@@ -215,7 +215,8 @@ namespace SetPoint.BLL._0.Sync
             var targetUserIds = new HashSet<Guid>();
 
             // ADD = If the user updated themselves, if not, nothing at all!
-            var selfUpdated = await _context.Users.AnyAsync(u => u.Id == request.UserId && u.UpdatedAt > request.LastSync);
+            var selfUpdated = await _context.Users.AsNoTracking()
+                .AnyAsync(u => u.Id == request.UserId && u.UpdatedAt > request.LastSync);
             if (selfUpdated) targetUserIds.Add(request.UserId);
 
             // ADD = The whole list of new contacts pending/accepted
@@ -233,13 +234,14 @@ namespace SetPoint.BLL._0.Sync
             //foreach (var id in updatedFriendIds)
             //    targetUserIds.Add(id);
             #endregion
-            var userEntities = await _context.Users.Where(u => targetUserIds.Contains(u.Id)).ToListAsync();
+            var userEntities = await _context.Users.AsNoTracking()
+                .Where(u => targetUserIds.Contains(u.Id)).ToListAsync();
 
             response.Users = userEntities
                 .Select(u => _mapper.Map<UserReadDto>(u)).ToList();
 
             /////////////////////////////////// ROUTINE REQUESTS
-            var routineReqEntities = await _context.RoutineRequests
+            var routineReqEntities = await _context.RoutineRequests.AsNoTracking()
                 .Where(rr => (rr.SenderId == request.UserId || rr.ReceiverId == request.UserId)
                              && rr.UpdatedAt > request.LastSync).ToListAsync();
 
@@ -247,7 +249,7 @@ namespace SetPoint.BLL._0.Sync
                 .Select(rr => _mapper.Map<RoutineRequestDto>(rr)).ToList();
 
             ////////////////////////////////// FEED EVENT
-            var feedEvent = await _context.FeedEvents
+            var feedEvent = await _context.FeedEvents.AsNoTracking()
                 .Where(fe => fe.UserId == null && fe.UpdatedAt > request.LastSync).ToListAsync();
 
             response.FeedEvents = feedEvent
