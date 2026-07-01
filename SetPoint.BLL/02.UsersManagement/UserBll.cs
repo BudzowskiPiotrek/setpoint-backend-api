@@ -65,7 +65,7 @@ namespace SetPoint.BLL._02.UsersManagement
 
         public async Task<UserReadDto?> GetUserById(Guid userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId && u.DeletedAt == null);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId && u.DeletedAt == null);
 
             return user == null ? null : _mapper.Map<UserReadDto>(user);
         }
