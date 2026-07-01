@@ -44,7 +44,7 @@ namespace SetPoint.BLL._0.Infrastructure
         {
             var email = new MimeMessage();
 
-            email.From.Add(new MailboxAddress("SetPoint App", _senderEmail));
+            email.From.Add(new MailboxAddress("HabityFit App", _senderEmail));
 
             email.To.Add(MailboxAddress.Parse(toEmail));
             email.Subject = subject;
