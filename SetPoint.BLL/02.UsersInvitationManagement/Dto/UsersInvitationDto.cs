@@ -4,13 +4,13 @@ namespace SetPoint.BLL._02.UsersInvitationManagement.Dto
 {
     public class UsersInvitationDto
     {
-        [JsonPropertyName("Id")]
+        [JsonPropertyName("ID")]
         public required Guid Id { get; set; }
 
-        [JsonPropertyName("Email")]
+        [JsonPropertyName("EMAIL")]
         public required string Email { get; set; }
 
-        [JsonPropertyName("SenderUserId")]
+        [JsonPropertyName("SENDER_USER_ID")]
         public Guid SenderUserId { get; set; }
     }
 }
