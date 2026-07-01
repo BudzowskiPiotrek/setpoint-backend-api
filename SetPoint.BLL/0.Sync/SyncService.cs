@@ -133,20 +133,6 @@ namespace SetPoint.BLL._0.Sync
         public async Task<SyncPayloadDto?> ProcessPull(PullRequestDto request, Guid userId)
         {
             var response = new SyncPayloadDto();
-            // obtener dto de usuario para generar token
-            /////////////////////////////////// BODY
-            var bodyEntities = await _context.BodyMeasurements.AsNoTracking()
-                .Where(b => b.IdUser == request.UserId && b.UpdatedAt > request.LastSync).ToListAsync();
-
-            response.BodyMeasurements = bodyEntities
-                .Select(b => _mapper.Map<BodyMeasurementsDto>(b)).ToList();
-
-            /////////////////////////////////// MUSCLE GROUPS
-            var muscleEntities = await _context.MuscleGroups.AsNoTracking()
-                .Where(m => m.UpdatedAt > request.LastSync).ToListAsync();
-
-            response.MuscleGroups = muscleEntities
-                .Select(m => _mapper.Map<MuscleGroupDto>(m)).ToList();
 
             /////////////////////////////////// EXERCISES
             var exerciseEntities = await _context.Exercises.AsNoTracking()
@@ -155,12 +141,34 @@ namespace SetPoint.BLL._0.Sync
             response.Exercises = exerciseEntities
                 .Select(e => _mapper.Map<ExercisesDto>(e)).ToList();
 
-            /////////////////////////////////// EXERCISE-MUSCLE
-            var exerciseMuscleEntities = await _context.ExerciseMuscleGroups.AsNoTracking()
-                .Where(em => em.UpdatedAt > request.LastSync).ToListAsync();
+            /////////////////////////////////// MUSCLE GROUPS
+            if (request.LastSync == DateTime.MinValue)
+            {
 
-            response.ExerciseMuscleGroups = exerciseMuscleEntities
-                .Select(em => _mapper.Map<ExerciseMuscleDto>(em)).ToList();
+                var muscleEntities = await _context.MuscleGroups.AsNoTracking()
+                    .Where(m => m.UpdatedAt > request.LastSync).ToListAsync();
+
+                response.MuscleGroups = muscleEntities
+                    .Select(m => _mapper.Map<MuscleGroupDto>(m)).ToList();
+            }
+
+            /////////////////////////////////// EXERCISE-MUSCLE
+            if (request.LastSync == DateTime.MinValue || exerciseEntities.Any())
+            {
+
+                var exerciseMuscleEntities = await _context.ExerciseMuscleGroups.AsNoTracking()
+                    .Where(em => em.UpdatedAt > request.LastSync).ToListAsync();
+
+                response.ExerciseMuscleGroups = exerciseMuscleEntities
+                    .Select(em => _mapper.Map<ExerciseMuscleDto>(em)).ToList();
+            }
+
+            /////////////////////////////////// BODY
+            var bodyEntities = await _context.BodyMeasurements.AsNoTracking()
+                .Where(b => b.IdUser == request.UserId && b.UpdatedAt > request.LastSync).ToListAsync();
+
+            response.BodyMeasurements = bodyEntities
+                .Select(b => _mapper.Map<BodyMeasurementsDto>(b)).ToList();
 
             /////////////////////////////////// ROUTINES
             var routines = await _context.Routines.AsNoTracking()
