@@ -53,10 +53,10 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
         #region Methods
         public async Task<bool> CreateAndSendInvitationAsync(UsersInvitationDto dto)
         {
-            var existingInvitation = await _context.UsersInvitations.FirstOrDefaultAsync(u => u.Id == dto.Id);
+            var existingInvitation = await _context.UsersInvitations.AsNoTracking().FirstOrDefaultAsync(u => u.Id == dto.Id);
             if (existingInvitation != null) throw new InvalidOperationException("Duplicate invitation attempt.");
 
-            var existing = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            var existing = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existing != null) throw new InvalidOperationException("This email already exist");
 
             var dateNow = DateTime.UtcNow;
