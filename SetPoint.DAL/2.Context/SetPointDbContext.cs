@@ -45,5 +45,78 @@ namespace SetPoint.DAL._2.Context
         public DbSet<Logs> Logs { get; set; }
         // ---------------------------------------------------------------------------------------------------
         #endregion
+
+
+        #region Configuration Indexes
+        // ---------------------------------------------------------------------------------------------------
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .HasIndex(nameof(BaseEntity.UpdatedAt));
+                }
+            }
+
+            ConfigureIndexes(modelBuilder);
+        }
+
+        private static void ConfigureIndexes(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Routines>()
+                .HasIndex(r => new
+                {
+                    r.UserId,
+                    r.UpdatedAt
+                });
+
+            modelBuilder.Entity<WorkoutSessions>()
+                .HasIndex(ws => new
+                {
+                    ws.UserId,
+                    ws.UpdatedAt
+                });
+
+            modelBuilder.Entity<BodyMeasurements>()
+                .HasIndex(b => new
+                {
+                    b.IdUser,
+                    b.UpdatedAt
+                });
+
+            modelBuilder.Entity<UsersRelations>()
+                .HasIndex(ur => new
+                {
+                    ur.UserId,
+                    ur.UpdatedAt
+                });
+
+            modelBuilder.Entity<UsersRelations>()
+                .HasIndex(ur => new
+                {
+                    ur.FriendId,
+                    ur.UpdatedAt
+                });
+
+            modelBuilder.Entity<RoutineRequests>()
+                .HasIndex(rr => new
+                {
+                    rr.SenderId,
+                    rr.UpdatedAt
+                });
+
+            modelBuilder.Entity<RoutineRequests>()
+                .HasIndex(rr => new
+                {
+                    rr.ReceiverId,
+                    rr.UpdatedAt
+                });
+        }
+        // ---------------------------------------------------------------------------------------------------
+        #endregion
     }
 }
