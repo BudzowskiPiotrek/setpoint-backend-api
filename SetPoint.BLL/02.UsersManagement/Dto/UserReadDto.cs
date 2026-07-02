@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using SetPoint.DAL._1.Entity;
+using System.Text.Json.Serialization;
 
 namespace SetPoint.BLL._02.UsersManagement.Dto
 {
@@ -30,5 +31,8 @@ namespace SetPoint.BLL._02.UsersManagement.Dto
 
         [JsonPropertyName("HEIGHT")]
         public double? Height { get; set; }
+
+        [JsonPropertyName("TERMS_ACCEPTED_AT")]
+        public DateTime? TermsAcceptedAt { get; set; }
     }
 }
