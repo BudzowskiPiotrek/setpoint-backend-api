@@ -27,6 +27,7 @@ using SetPoint.BLL._10.WorkoutExercisesManagement;
 using SetPoint.BLL._10.WorkoutExercisesManagement.Dto;
 using SetPoint.BLL._11.ExerciseSetsManagement;
 using SetPoint.BLL._11.ExerciseSetsManagement.Dto;
+using SetPoint.BLL._12.FeedEventManagement;
 using SetPoint.BLL._12.FeedEventManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
@@ -50,6 +51,7 @@ namespace SetPoint.BLL._0.Sync
         private readonly IUserRelationBll _userRelationBll;
         private readonly IUsersInvitationBll _usersInvitationBll;
         private readonly IRoutineRequestBll _routineRequestBll;
+        private readonly IFeedEventBll _feedEventBll;
 
         private readonly ITokenService _tokenService;
         private readonly ILogger<SyncService> _logger;
@@ -75,6 +77,7 @@ namespace SetPoint.BLL._0.Sync
             IUserRelationBll userRelationBll,
             IUsersInvitationBll usersInvitationBll,
             IRoutineRequestBll routineRequestBll,
+            IFeedEventBll feedEventBll,
             IMapper mapper,
             ILogger<SyncService> logger)
         {
@@ -94,6 +97,7 @@ namespace SetPoint.BLL._0.Sync
             _userRelationBll = userRelationBll;
             _usersInvitationBll = usersInvitationBll;
             _routineRequestBll = routineRequestBll;
+            _feedEventBll = feedEventBll;
             _mapper = mapper;
         }
 
@@ -123,6 +127,7 @@ namespace SetPoint.BLL._0.Sync
             await ProcessCollection(payload.UserRelations, _userRelationBll.SyncUserRelation, x => x.Id.ToString(), response);
             await ProcessCollection(payload.RoutinesRequests, _routineRequestBll.SyncRoutineRequest, x => x.Id.ToString(), response);
             await ProcessCollection(payload.UserInvitations, _usersInvitationBll.CreateAndSendInvitationAsync, x => x.Id.ToString(), response);
+            await ProcessCollection(payload.FeedEvents, _feedEventBll.SyncFeedEvent, x => x.Id.ToString(), response);
 
             // --- Logging ---
             await LogSyncResult(userId, response);
@@ -260,8 +265,16 @@ namespace SetPoint.BLL._0.Sync
                 .Select(rr => _mapper.Map<RoutineRequestDto>(rr)).ToList();
 
             ////////////////////////////////// FEED EVENT
+            var minFeedDate = request.LastSync > DateTime.UtcNow.AddDays(-10) ? request.LastSync : DateTime.UtcNow.AddDays(-10);
+
+            var acceptedFriendIds = relationEntities
+                .Where(ur => ur.Status == RelationStatus.Accepted)
+                .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId)
+                .ToList();
+
             var feedEvent = await _context.FeedEvents.AsNoTracking()
-                .Where(fe => fe.UserId == null && fe.UpdatedAt > request.LastSync).ToListAsync();
+                .Where(fe => (fe.UserId == null || acceptedFriendIds.Contains(fe.UserId.Value))
+                             && fe.UpdatedAt > minFeedDate).ToListAsync();
 
             response.FeedEvents = feedEvent
                 .Select(fe => _mapper.Map<FeedEventDto>(fe)).ToList();
