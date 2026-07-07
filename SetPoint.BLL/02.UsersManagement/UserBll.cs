@@ -57,6 +57,7 @@ namespace SetPoint.BLL._02.UsersManagement
                 existing.Email = dto.Email;
                 existing.Sex = dto.Sex;
                 existing.Height = dto.Height;
+                existing.TermsAcceptedAt = dto.TermsAcceptedAt;
                 existing.UpdatedAt = DateTime.UtcNow;
                 return await _context.SaveChangesAsync() > 0;
             }
