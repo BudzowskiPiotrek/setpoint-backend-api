@@ -31,7 +31,7 @@ namespace SetPoint.BLL._0.Common
             CreateMap<MuscleGroup, MuscleGroupDto>().ReverseMap();
             CreateMap<ExerciseMuscleGroup, ExerciseMuscleDto>().ReverseMap();
             CreateMap<Routines, RoutineDto>().ReverseMap();
-            CreateMap<RoutineRequests, RoutineRequestDto>();
+            CreateMap<RoutineRequests, RoutineRequestDto>().ReverseMap();
             CreateMap<RoutineExercises, RoutineExerciseDto>().ReverseMap();
             CreateMap<WorkoutSessions, WorkoutSessionsDto>().ReverseMap();
             CreateMap<WorkoutExercises, WorkoutExercisesDto>().ReverseMap();
