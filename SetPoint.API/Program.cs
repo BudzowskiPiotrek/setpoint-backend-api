@@ -21,6 +21,7 @@ using SetPoint.BLL._09.WorkoutSessionsManagement;
 using SetPoint.BLL._1.Security;
 using SetPoint.BLL._10.WorkoutExercisesManagement;
 using SetPoint.BLL._11.ExerciseSetsManagement;
+using SetPoint.BLL._12.FeedEventManagement;
 using SetPoint.DAL._2.Context;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -61,6 +62,7 @@ builder.Services.AddSingleton(provider => new MapperConfiguration(cfg =>
 //------------------------------------------------------------------------------------------ Dependency Injection for BLL and Services --------
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IRoutineBll, RoutineBll>();
+builder.Services.AddScoped<IFeedEventBll, FeedEventBll>();
 builder.Services.AddScoped<IExercisesBll, ExercisesBll>();
 builder.Services.AddScoped<IMuscleGroupBll, MuscleGroupBll>();
 builder.Services.AddScoped<IExerciseSetsBll, ExerciseSetsBll>();
