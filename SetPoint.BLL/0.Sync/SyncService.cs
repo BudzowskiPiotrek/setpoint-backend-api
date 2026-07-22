@@ -219,10 +219,18 @@ namespace SetPoint.BLL._0.Sync
             response.ExerciseSets = setEntities
                 .Select(es => _mapper.Map<ExerciseSetsDto>(es)).ToList();
 
+            /////////////////////////////////// ALL USER RELATIONS
+            var allUserRelations = await _context.UsersRelations.AsNoTracking()
+                .Where(ur => ur.UserId == request.UserId || ur.FriendId == request.UserId)
+                .ToListAsync();
+
+            var allAcceptedFriendIds = allUserRelations
+                .Where(ur => ur.Status == RelationStatus.Accepted)
+                .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId).ToList();
+
             /////////////////////////////////// USER RELATIONS
-            var relationEntities = await _context.UsersRelations.AsNoTracking()
-                .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId)
-                             && ur.UpdatedAt > request.LastSync).ToListAsync();
+            var relationEntities = allUserRelations
+                .Where(ur => ur.UpdatedAt > request.LastSync).ToList();
 
             response.UserRelations = relationEntities
                 .Select(ur => _mapper.Map<UserRelationDto>(ur)).ToList();
@@ -233,12 +241,14 @@ namespace SetPoint.BLL._0.Sync
             // ADD = If the user updated themselves, if not, nothing at all!
             var selfUpdated = await _context.Users.AsNoTracking()
                 .AnyAsync(u => u.Id == request.UserId && u.UpdatedAt > request.LastSync);
+
             if (selfUpdated) targetUserIds.Add(request.UserId);
 
             // ADD = The whole list of new contacts pending/accepted
             foreach (var ur in relationEntities)
                 if (ur.Status != RelationStatus.Rejected)
                     targetUserIds.Add(ur.UserId == request.UserId ? ur.FriendId : ur.UserId);
+
             #region UPDATED FRIENDS (ONLY IF USER UPDATED THEIR PROFILE)
             //var updatedFriendIds = await context.UsersRelations
             //    .Where(ur => (ur.UserId == request.UserId || ur.FriendId == request.UserId) && ur.Status != RelationStatus.Rejected)
@@ -250,6 +260,7 @@ namespace SetPoint.BLL._0.Sync
             //foreach (var id in updatedFriendIds)
             //    targetUserIds.Add(id);
             #endregion
+
             var userEntities = await _context.Users.AsNoTracking()
                 .Where(u => targetUserIds.Contains(u.Id)).ToListAsync();
 
@@ -267,13 +278,8 @@ namespace SetPoint.BLL._0.Sync
             ////////////////////////////////// FEED EVENT
             var minFeedDate = request.LastSync > DateTime.UtcNow.AddDays(-10) ? request.LastSync : DateTime.UtcNow.AddDays(-10);
 
-            var acceptedFriendIds = relationEntities
-                .Where(ur => ur.Status == RelationStatus.Accepted)
-                .Select(ur => ur.UserId == request.UserId ? ur.FriendId : ur.UserId)
-                .ToList();
-
             var feedEvent = await _context.FeedEvents.AsNoTracking()
-                .Where(fe => (fe.UserId == null || acceptedFriendIds.Contains(fe.UserId.Value))
+                .Where(fe => (fe.UserId == null || allAcceptedFriendIds.Contains(fe.UserId.Value))
                              && fe.UpdatedAt > minFeedDate).ToListAsync();
 
             response.FeedEvents = feedEvent
