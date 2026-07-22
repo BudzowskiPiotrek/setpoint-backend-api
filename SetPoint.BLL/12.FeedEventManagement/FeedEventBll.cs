@@ -29,6 +29,7 @@ namespace SetPoint.BLL._12.FeedEventManagement
             if (existing == null)
             {
                 var entity = _mapper.Map<FeedEvent>(dto);
+                entity.UpdatedAt = DateTime.UtcNow;
                 await _context.FeedEvents.AddAsync(entity);
             }
             else
