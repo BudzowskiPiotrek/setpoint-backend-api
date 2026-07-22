@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SetPoint.DAL._2.Context;
@@ -11,9 +12,11 @@ using SetPoint.DAL._2.Context;
 namespace SetPoint.DAL.Migrations
 {
     [DbContext(typeof(SetPointDbContext))]
-    partial class SetPointDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260715072523_AddMinMaxSetsToMuscleGroup")]
+    partial class AddMinMaxSetsToMuscleGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

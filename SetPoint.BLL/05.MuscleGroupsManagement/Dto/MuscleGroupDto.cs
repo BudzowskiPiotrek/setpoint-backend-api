@@ -21,5 +21,11 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement.Dto
 
         [JsonPropertyName("DESCRIPTION")]
         public string? Description { get; set; }
+
+        [JsonPropertyName("MIN_SETS")]
+        public int? MinSets { get; set; }
+
+        [JsonPropertyName("MAX_SETS")]
+        public int? MaxSets { get; set; }
     }
 }
