@@ -36,3 +36,7 @@ publish/
 Thumbs.db
 SetPoint.API/appsettings.Development.json
 /SetPoint.API/logs
+SetPoint.API/appsettings.json
+SetPoint.API/Dockerfile
+SetPoint.API/Properties/launchSettings.json
+SetPoint.API/SetPoint.http
