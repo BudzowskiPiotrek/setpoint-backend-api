@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="SetPoint.BLL.Tests/SetPoint.BLL.Tests.csproj" />
+  <Project Path="SetPoint.BLL/SetPoint.BLL.csproj" />
+  <Project Path="SetPoint.DAL/SetPoint.DAL.csproj" />
+  <Project Path="SetPoint.API.Tests/SetPoint.Api.Tests.csproj" DisplayName="SetPoint.API.Tests" />
+  <Project Path="SetPoint.API/SetPoint.API.csproj" />
+</Solution>
