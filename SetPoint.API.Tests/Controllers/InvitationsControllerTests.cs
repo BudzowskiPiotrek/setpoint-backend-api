@@ -110,5 +110,20 @@ namespace SetPoint.Api.Tests.Controllers
             objectResult!.StatusCode.Should().Be(500);
         }
         #endregion
+
+        #region Activate
+        [Fact]
+        public void InvitationsController_Activate_ReturnsRedirectWithDeepLink()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var token = "fake-token-123";
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = _controller.Activate(token);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var redirectResult = result as RedirectResult;
+            redirectResult.Should().NotBeNull();
+            redirectResult!.Url.Should().Be($"habityfit://activate?token={token}");
+        }
+        #endregion
     }
 }
