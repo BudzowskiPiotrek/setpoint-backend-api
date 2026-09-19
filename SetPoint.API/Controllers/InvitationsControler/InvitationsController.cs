@@ -14,18 +14,28 @@ namespace SetPoint.API.Controllers.InvitationsControler
     {
         #region Fields
         private readonly IUsersInvitationBll _invitationBll;
+        private readonly IConfiguration _config;
         #endregion
 
 
         #region Constructors
-        public InvitationsController(IUsersInvitationBll invitationBll, ILogger<InvitationsController> logger) : base(logger)
+        public InvitationsController(IUsersInvitationBll invitationBll, IConfiguration config, ILogger<InvitationsController> logger) : base(logger)
         {
             _invitationBll = invitationBll;
+            _config = config;
         }
         #endregion
 
 
         #region Methods
+        [EnableRateLimiting("SincronizacionLenta")]
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<ObjectResult> Register([FromBody] EmailDto dto)
+        {
+            throw new NotImplementedException();
+        }
+
         [EnableRateLimiting("SincronizacionLenta")]
         [HttpPost("accept")]
         [AllowAnonymous]

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SetPoint.API.Common;
@@ -11,14 +12,150 @@ namespace SetPoint.Api.Tests.Controllers
 {
     public class InvitationsControllerTests
     {
+        private const string ValidToken = "fake-token-ap";
         private readonly Mock<IUsersInvitationBll> _userInvitationBll = new();
         private readonly Mock<ILogger<InvitationsController>> _logger = new();
+        private readonly IConfiguration _config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { { "AppSettings:TokenAp", ValidToken } }).Build();
         private readonly InvitationsController _controller;
 
         public InvitationsControllerTests()
         {
-            _controller = new(_userInvitationBll.Object, _logger.Object);
+            _controller = new(_userInvitationBll.Object, _config, _logger.Object);
         }
+
+        #region Register
+        [Fact]
+        public async Task InvitationsController_Register_WhenTokenAndEmailAreValid_Returns200()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = ValidToken,
+                Email = "user@test.com"
+            };
+            _userInvitationBll.Setup(x => x.CreateAndSendValidateAsync(It.IsAny<string>()))
+                              .ReturnsAsync(true);
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(200);
+            _userInvitationBll.Verify(u => u.CreateAndSendValidateAsync(dto.Email), Times.Once);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("wrong-token")]
+        public async Task InvitationsController_Register_WhenTokenIsInvalid_Returns401AndDoesNotCallBll(string token)
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = token,
+                Email = "user@test.com"
+            };
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(401);
+            _userInvitationBll.Verify(u => u.CreateAndSendValidateAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task InvitationsController_Register_WhenTokenIsInvalidAndEmailIsInvalid_Returns401()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto { Token = "wrong-token", Email = "nananana" };
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(401);
+            _userInvitationBll.Verify(u => u.CreateAndSendValidateAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("nananana")]
+        [InlineData("nananana@")]
+        [InlineData("@nanana.com")]
+        [InlineData("nananana@nanana")]
+        [InlineData("nana nana@nanana.com")]
+        public async Task InvitationsController_Register_WhenEmailFormatIsInvalid_Returns400AndDoesNotCallBll(string email)
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = ValidToken,
+                Email = email
+            };
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(400);
+            _userInvitationBll.Verify(u => u.CreateAndSendValidateAsync(It.IsAny<string>()), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task InvitationsController_Register_WhenBllReturnsFalse_Returns500()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = ValidToken,
+                Email = "user@test.com"
+            };
+            _userInvitationBll.Setup(x => x.CreateAndSendValidateAsync(It.IsAny<string>()))
+                              .ReturnsAsync(false);
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(500);
+        }
+
+        [Fact]
+        public async Task InvitationsController_Register_WhenBllThrowsInvalidOperationException_Returns409()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = ValidToken,
+                Email = "user@test.com"
+            };
+            _userInvitationBll.Setup(x => x.CreateAndSendValidateAsync(It.IsAny<string>()))
+                              .ThrowsAsync(new InvalidOperationException("fake-error"));
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(409);
+        }
+
+        [Fact]
+        public async Task InvitationsController_Register_WhenBllThrowsUnexpectedException_Returns500()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            var dto = new EmailDto
+            {
+                Token = ValidToken,
+                Email = "user@test.com"
+            };
+            _userInvitationBll.Setup(x => x.CreateAndSendValidateAsync(It.IsAny<string>()))
+                              .ThrowsAsync(new Exception("fake-error"));
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await _controller.Register(dto);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            var objectResult = result as ObjectResult;
+            objectResult!.StatusCode.Should().Be(500);
+        }
+        #endregion
 
         #region Accept 
         [Fact]

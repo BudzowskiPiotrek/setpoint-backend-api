@@ -29,8 +29,8 @@ namespace SetPoint.BLL.Tests.Management
         private static IConfiguration MockConfigWithUrls()
         {
             var configMock = new Mock<IConfiguration>();
-            configMock.Setup(c => c["EmailSettings:DownloadUrl"]).Returns("https://test.com/download");
-            configMock.Setup(c => c["EmailSettings:ActivationUrl"]).Returns("https://test.com/activate");
+            configMock.Setup(c => c["HTML:Invitation"]).Returns("<p>Invitation Template</p>");
+            configMock.Setup(c => c["HTML:Accept"]).Returns("<p>Accept Template</p>");
             return configMock.Object;
         }
 
@@ -47,6 +47,83 @@ namespace SetPoint.BLL.Tests.Management
             //---------------------------------------------------------------------------------------------------------------- Assert
             Assert.Fail("TODO: yet to be developed");
         }
+
+        #region CreateAndSendValidate
+        [Fact]
+        public async Task CreateAndSendValidate_WhenEmailSendsSuccessfully_ReturnsTrueAndPersistsInvitation()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            await using var context = CreateInMemoryContext();
+            _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                      .ReturnsAsync(true);
+            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var email = "user@test.com";
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await bll.CreateAndSendValidateAsync(email);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            result.Should().BeTrue();
+
+            var persisted = await context.UsersInvitations.FirstOrDefaultAsync(u => u.Email == email);
+            persisted.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                persisted!.Sended.Should().BeTrue();
+                persisted.Status.Should().Be(InvitationStatus.Pending);
+                persisted.SenderUserId.Should().BeNull();
+                persisted.Token.Should().NotBe(Guid.Empty);
+                persisted.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
+            }
+            _emailMock.Verify(e => e.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateAndSendValidate_WhenEmailFails_ReturnsFalseButStillPersistsInvitation()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            await using var context = CreateInMemoryContext();
+            _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                      .ReturnsAsync(false);
+            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var email = "user@test.com";
+            //---------------------------------------------------------------------------------------------------------------- Act
+            var result = await bll.CreateAndSendValidateAsync(email);
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            result.Should().BeFalse();
+
+            var persisted = await context.UsersInvitations.FirstOrDefaultAsync(u => u.Email == email);
+            persisted.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                persisted!.Sended.Should().BeFalse();
+                persisted.Status.Should().Be(InvitationStatus.Pending);
+                persisted.SenderUserId.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public async Task CreateAndSendValidate_WhenEmailAlreadyExists_ThrowsInvalidOperationExceptionAndDoesNotSendEmail()
+        {
+            //---------------------------------------------------------------------------------------------------------------- Arrange
+            await using var context = CreateInMemoryContext();
+            var existingUser = new Users
+            {
+                Id = Guid.NewGuid(),
+                Email = "existing@test.com",
+                FullName = "Test User",
+                PasswordHash = "irrelevant-hash",
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Users.Add(existingUser);
+            await context.SaveChangesAsync();
+            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            //---------------------------------------------------------------------------------------------------------------- Act
+            Func<Task> act = async () => await bll.CreateAndSendValidateAsync("existing@test.com");
+            //---------------------------------------------------------------------------------------------------------------- Assert
+            await act.Should().ThrowAsync<InvalidOperationException>();
+            _emailMock.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            (await context.UsersInvitations.CountAsync()).Should().Be(0);
+        }
+        #endregion
 
         #region CreateAndSendInvitationAsync
         [Fact]

@@ -121,6 +121,11 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
 
             return loginDto;
         }
+
+        public Task<bool> CreateAndSendValidateAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
