@@ -5,6 +5,7 @@ using SetPoint.API._2.Controllers.Common;
 using SetPoint.API.Common;
 using SetPoint.BLL._02.UsersInvitationManagement;
 using SetPoint.BLL._02.UsersInvitationManagement.Dto;
+using System.Text.RegularExpressions;
 
 namespace SetPoint.API.Controllers.InvitationsControler
 {
@@ -15,6 +16,7 @@ namespace SetPoint.API.Controllers.InvitationsControler
         #region Fields
         private readonly IUsersInvitationBll _invitationBll;
         private readonly IConfiguration _config;
+        private static readonly Regex EmailRegex = new(@"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled);
         #endregion
 
 
@@ -31,9 +33,53 @@ namespace SetPoint.API.Controllers.InvitationsControler
         [EnableRateLimiting("SincronizacionLenta")]
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ObjectResult> Register([FromBody] EmailDto dto)
+        public async Task<IActionResult> Register([FromBody] EmailDto dto)
         {
-            throw new NotImplementedException();
+            var configuredToken = _config["AppSettings:TokenAp"];
+
+            if (string.IsNullOrEmpty(dto?.Token) || dto.Token != configuredToken)
+            {
+                return Unauthorized(new ApiResponse
+                {
+                    WithError = true,
+                    Message = "Invalid token",
+                    StatusCode = 401
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Email) || !EmailRegex.IsMatch(dto.Email))
+            {
+                return BadRequest(new ApiResponse
+                {
+                    WithError = true,
+                    Message = "Invalid email format",
+                    StatusCode = 400
+                });
+            }
+
+            try
+            {
+                var sent = await _invitationBll.CreateAndSendValidateAsync(dto.Email);
+
+                if (!sent)
+                    return StatusCode(500, ApiResponse.Error("Error sending validation email", 500));
+
+                return SuccessResponse(null, "Validation email sent.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Business rule violation on register");
+                return Conflict(new ApiResponse
+                {
+                    WithError = true,
+                    Message = "Request could not be processed",
+                    StatusCode = 409
+                });
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(ex, "Error processing register");
+            }
         }
 
         [EnableRateLimiting("SincronizacionLenta")]
@@ -61,7 +107,7 @@ namespace SetPoint.API.Controllers.InvitationsControler
                 return Conflict(new ApiResponse
                 {
                     WithError = true,
-                    Message = ex.Message,
+                    Message = "Request could not be processed",
                     StatusCode = 409
                 });
             }

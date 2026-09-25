@@ -20,8 +20,8 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
         private readonly IUserBll _userBll;
         private readonly IUserRelationBll _userRelationBll;
         private readonly SetPointDbContext _context;
-        private readonly string _downloadUrl;
-        private readonly string _activationUrl;
+        private readonly string _htmlBodyInvitation;
+        private readonly string _htmlBodyAccept;
         #endregion
 
 
@@ -41,16 +41,50 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
             _context = context;
             _logger = logger;
 
-            _downloadUrl = _config["EmailSettings:DownloadUrl"]
-                ?? throw new InvalidOperationException("Email DownloadUrl not found in configuration.");
+            _htmlBodyInvitation = _config["HTML:Invitation"]
+                ?? throw new InvalidOperationException("HTML Body of Invitation not found in configuration.");
 
-            _activationUrl = _config["EmailSettings:ActivationUrl"]
-                ?? throw new InvalidOperationException("Email ActivationUrl not found in configuration.");
+            _htmlBodyAccept = _config["HTML:Accept"]
+                ?? throw new InvalidOperationException("HTML Body of Accept not found in configuration.");
         }
         #endregion
 
 
         #region Methods
+        public async Task<bool> CreateAndSendValidateAsync(string email)
+        {
+            var existing = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
+            if (existing != null) throw new InvalidOperationException("This email already exist");
+
+            var dateNow = DateTime.UtcNow;
+
+            var newInvitation = new UsersInvitations
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = dateNow,
+                UpdatedAt = dateNow,
+                Email = email,
+                Token = Guid.NewGuid(),
+                SenderUserId = null,
+                ExpiresAt = dateNow.AddDays(2),
+                Status = InvitationStatus.Pending,
+                Sended = false,
+            };
+
+            string htmlBody = string.Format(_htmlBodyAccept, newInvitation.Token);
+
+            bool emailResult = await _emailService.SendEmailAsync(email, "HabityFit: El destino ha pronunciado tu nombre. ¿Aceptarás la misión?", htmlBody);
+
+
+            if (emailResult) newInvitation.Sended = true;
+            else _logger.LogWarning("Failed to send accept email to {Email}.", email);
+
+            await _context.UsersInvitations.AddAsync(newInvitation);
+            await _context.SaveChangesAsync();
+
+            return emailResult;
+        }
+
         public async Task<bool> CreateAndSendInvitationAsync(UsersInvitationDto dto)
         {
             var existingInvitation = await _context.UsersInvitations.AsNoTracking().FirstOrDefaultAsync(u => u.Id == dto.Id);
@@ -74,17 +108,7 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
                 Sended = false,
             };
 
-            string htmlBody = $@" <div style='font-family:Segoe UI, Arial, sans-serif; max-width:600px; margin:auto; color:#222; line-height:1.7;'> 
-                <h2 style='color:#2E8B57;'>⚔️ ¡Una nueva aventura te espera!</h2> 
-                <p> Has sido invitado a unirte a la <strong>familia HabityFit</strong>. Todo héroe comienza con una decisión... hoy empieza la tuya. </p>
-                <p> 💪 Entrena. Sube de nivel. Rompe tus propios límites. </p>
-                <hr style='border:none; border-top:1px solid #ddd; margin:24px 0;' /> 
-                <h3>📲 Paso 1: Descarga la aplicación</h3> 
-                <p> <a href='{_downloadUrl}' style='color:#2E8B57; font-weight:bold;'> Descargar HabityFit </a> </p> 
-                <h3>🛡️ Paso 2: Reclama tu lugar</h3> 
-                <p> Cuando tengas la aplicación instalada, pulsa el siguiente enlace para crear tu cuenta y comenzar tu aventura: </p> 
-                <p> <a href='{_activationUrl}{newInvitation.Token}' style='background:#2E8B57;color:white;padding:12px 20px;text-decoration:none;border-radius:8px;display:inline-block;'> Crear mi cuenta </a> </p> 
-                <p style='margin-top:30px;font-size:13px;color:#777;'> El reino necesita nuevos campeones. ¿Aceptarás la misión? </p> </div>";
+            string htmlBody = string.Format(_htmlBodyInvitation, newInvitation.Token);
 
             bool emailResult = await _emailService.SendEmailAsync(dto.Email, "HabityFit: El destino ha pronunciado tu nombre. ¿Aceptarás la misión?", htmlBody);
 
@@ -120,11 +144,6 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
                 await _userRelationBll.CreateFriendshipAsync(senderId, newUserId);
 
             return loginDto;
-        }
-
-        public Task<bool> CreateAndSendValidateAsync(string email)
-        {
-            throw new NotImplementedException();
         }
         #endregion
     }
