@@ -26,9 +26,7 @@ namespace SetPoint.BLL._07.RoutinesManagement
         #region Methods
         public async Task<bool> SyncRoutine(RoutineDto dto)
         {
-            var existing = await _context.Routines
-                .FirstOrDefaultAsync(r => r.Id == dto.Id ||
-                                         (r.UserId == dto.UserId && r.Name.ToLower() == dto.Name.ToLower()));
+            var existing = await _context.Routines.FirstOrDefaultAsync(r => r.Id == dto.Id);
             if (existing == null)
             {
                 var entity = _mapper.Map<Routines>(dto);
