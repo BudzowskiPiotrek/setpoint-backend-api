@@ -36,6 +36,7 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement
             }
             else
             {
+                var existingId = existing.Id;
                 if (existing.DeletedAt != null && dto.DeletedAt == null)
                 {
                     existing.DeletedAt = null;
@@ -43,6 +44,7 @@ namespace SetPoint.BLL._05.MuscleGroupsManagement
                 if (dto.UpdatedAt > existing.UpdatedAt || existing.UpdatedAt == null)
                 {
                     _mapper.Map(dto, existing);
+                    existing.Id = existingId;
                     _context.MuscleGroups.Update(existing);
                 }
                 else

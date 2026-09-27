@@ -42,9 +42,11 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
             }
             else
             {
+                var existingId = existing.Id;
                 if (existing.Status == RequestStatus.Rejected)
                 {
                     _mapper.Map(dto, existing);
+                    existing.Id = existingId;
                     existing.Status = RequestStatus.Pending;
                     existing.UpdatedAt = DateTime.UtcNow;
                     _context.RoutineRequests.Update(existing);
@@ -62,6 +64,7 @@ namespace SetPoint.BLL._07.RoutineRequestManagement
                         if (!copy) return false;
                     }
                     _mapper.Map(dto, existing);
+                    existing.Id = existingId;
                     _context.RoutineRequests.Update(existing);
                 }
                 else

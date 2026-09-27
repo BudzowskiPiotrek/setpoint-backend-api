@@ -37,9 +37,11 @@ namespace SetPoint.BLL._02.UserRelationManagement
             }
             else
             {
+                var existingId = existing.Id;
                 if (existing.Status == RelationStatus.Rejected)
                 {
                     _mapper.Map(dto, existing);
+                    existingId = existing.Id;
                     existing.Status = RelationStatus.Pending;
                     existing.UpdatedAt = DateTime.UtcNow;
                     _context.UsersRelations.Update(existing);
@@ -49,6 +51,7 @@ namespace SetPoint.BLL._02.UserRelationManagement
                     if (dto.UserId != existing.UserId)
                     {
                         _mapper.Map(dto, existing);
+                        existingId = existing.Id;
                         existing.Status = RelationStatus.Accepted;
                         existing.UpdatedAt = DateTime.UtcNow;
                         _context.UsersRelations.Update(existing);
@@ -62,6 +65,7 @@ namespace SetPoint.BLL._02.UserRelationManagement
                         existing.DeletedAt = null;
                     }
                     _mapper.Map(dto, existing);
+                    existingId = existing.Id;
                     _context.UsersRelations.Update(existing);
                 }
                 else return true;
@@ -99,7 +103,6 @@ namespace SetPoint.BLL._02.UserRelationManagement
             existing.DeletedAt = null;
             return await _context.SaveChangesAsync() > 0;
         }
-
         #endregion
     }
 }
