@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using SetPoint.BLL._02.UserRelationManagement.Dto;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
 using SetPoint.BLL._04.ExercisesManagement.Dto;
 using SetPoint.BLL._05.MuscleGroupsManagement.Dto;

@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 using SetPoint.BLL._0.Sync.Dto;
 using SetPoint.BLL._02.UserRelationManagement;
 using SetPoint.BLL._02.UserRelationManagement.Dto;
-using SetPoint.BLL._02.UsersInvitationManagement;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
 using SetPoint.BLL._04.ExercisesManagement;
 using SetPoint.BLL._04.ExercisesManagement.Dto;
@@ -49,7 +49,7 @@ namespace SetPoint.BLL._0.Sync
         private readonly IExerciseSetsBll _exerciseSetBll;
         private readonly IUserBll _userBll;
         private readonly IUserRelationBll _userRelationBll;
-        private readonly IUsersInvitationBll _usersInvitationBll;
+        private readonly IUsersVerificationBll _usersInvitationBll;
         private readonly IRoutineRequestBll _routineRequestBll;
         private readonly IFeedEventBll _feedEventBll;
 
@@ -75,7 +75,7 @@ namespace SetPoint.BLL._0.Sync
             IExerciseSetsBll exerciseSetBll,
             IUserBll userBll,
             IUserRelationBll userRelationBll,
-            IUsersInvitationBll usersInvitationBll,
+            IUsersVerificationBll usersInvitationBll,
             IRoutineRequestBll routineRequestBll,
             IFeedEventBll feedEventBll,
             IMapper mapper,
@@ -113,12 +113,13 @@ namespace SetPoint.BLL._0.Sync
                 Success = new List<bool>()
             };
 
-            // --- Procesamiento de todas las colecciones ---
+            // --- Processing of all collections ---
             await ProcessCollection(payload.Users, _userBll.SyncUser, x => x.Id.ToString(), response, x => x.Id = userId);
             await ProcessCollection(payload.BodyMeasurements, _bodyBll.SyncBody, x => x.Id.ToString(), response, x => x.IdUser = userId);
-            await ProcessCollection(payload.MuscleGroups, _muscleGroupBll.SyncMuscleGroup, x => x.Id.ToString(), response);
-            await ProcessCollection(payload.Exercises, _exercisesBll.SyncExercise, x => x.Id.ToString(), response);
-            await ProcessCollection(payload.ExerciseMuscleGroups, _exerciseMuscleBll.SyncExerciseMuscleGroup, x => x.Id.ToString(), response);
+            // --- synchronizing this data from the client is not required ---
+            //await ProcessCollection(payload.MuscleGroups, _muscleGroupBll.SyncMuscleGroup, x => x.Id.ToString(), response);
+            //await ProcessCollection(payload.Exercises, _exercisesBll.SyncExercise, x => x.Id.ToString(), response);
+            //await ProcessCollection(payload.ExerciseMuscleGroups, _exerciseMuscleBll.SyncExerciseMuscleGroup, x => x.Id.ToString(), response);
             await ProcessCollection(payload.Routines, _routineBll.SyncRoutine, x => x.Id.ToString(), response, x => x.UserId = userId);
             await ProcessCollection(payload.RoutineExercises, _routineExerciseBll.SyncRoutineExercise, x => x.Id.ToString(), response);
             await ProcessCollection(payload.WorkoutSessions, _workoutSessionBll.SyncWorkoutSession, x => x.Id.ToString(), response, x => x.UserId = userId);

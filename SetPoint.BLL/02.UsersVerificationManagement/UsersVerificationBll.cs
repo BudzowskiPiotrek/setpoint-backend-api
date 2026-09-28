@@ -3,18 +3,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SetPoint.BLL._0.Infrastructure;
 using SetPoint.BLL._02.UserRelationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
-namespace SetPoint.BLL._02.UsersInvitationManagement
+namespace SetPoint.BLL._02.UsersVerificationManagement
 {
-    public class UsersInvitationBll : IUsersInvitationBll
+    public class UsersVerificationBll : IUsersVerificationBll
     {
         #region Fields
-        private readonly ILogger<UsersInvitationBll> _logger;
+        private readonly ILogger<UsersVerificationBll> _logger;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly IUserBll _userBll;
@@ -26,13 +26,13 @@ namespace SetPoint.BLL._02.UsersInvitationManagement
 
 
         #region Constructors
-        public UsersInvitationBll(
+        public UsersVerificationBll(
             IConfiguration config,
             IEmailService emailService,
             IUserBll userBll,
             IUserRelationBll userRelationBll,
             SetPointDbContext context,
-            ILogger<UsersInvitationBll> logger)
+            ILogger<UsersVerificationBll> logger)
         {
             _config = config;
             _emailService = emailService;

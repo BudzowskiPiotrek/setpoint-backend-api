@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using SetPoint.API._2.Controllers.Common;
 using SetPoint.API.Common;
-using SetPoint.BLL._02.UsersInvitationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 using System.Text.RegularExpressions;
 
 namespace SetPoint.API.Controllers.InvitationsControler
@@ -14,14 +14,14 @@ namespace SetPoint.API.Controllers.InvitationsControler
     public class InvitationsController : BaseController
     {
         #region Fields
-        private readonly IUsersInvitationBll _invitationBll;
+        private readonly IUsersVerificationBll _invitationBll;
         private readonly IConfiguration _config;
         private static readonly Regex EmailRegex = new(@"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled);
         #endregion
 
 
         #region Constructors
-        public InvitationsController(IUsersInvitationBll invitationBll, IConfiguration config, ILogger<InvitationsController> logger) : base(logger)
+        public InvitationsController(IUsersVerificationBll invitationBll, IConfiguration config, ILogger<InvitationsController> logger) : base(logger)
         {
             _invitationBll = invitationBll;
             _config = config;
@@ -30,7 +30,7 @@ namespace SetPoint.API.Controllers.InvitationsControler
 
 
         #region Methods
-        [EnableRateLimiting("SincronizacionLenta")]
+        [EnableRateLimiting("Register")]
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] EmailDto dto)

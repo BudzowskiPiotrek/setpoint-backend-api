@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SetPoint.API.Common;
 using SetPoint.API.Controllers.InvitationsControler;
-using SetPoint.BLL._02.UsersInvitationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 namespace SetPoint.Api.Tests.Controllers
 {
     public class InvitationsControllerTests
     {
         private const string ValidToken = "fake-token-ap";
-        private readonly Mock<IUsersInvitationBll> _userInvitationBll = new();
+        private readonly Mock<IUsersVerificationBll> _userInvitationBll = new();
         private readonly Mock<ILogger<InvitationsController>> _logger = new();
         private readonly IConfiguration _config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { { "AppSettings:TokenAp", ValidToken } }).Build();

@@ -6,17 +6,17 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SetPoint.BLL._0.Infrastructure;
 using SetPoint.BLL._02.UserRelationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement.Dto;
 using SetPoint.BLL._02.UsersManagement;
 using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 using SetPoint.DAL._1.Entity;
 using SetPoint.DAL._2.Context;
 
 namespace SetPoint.BLL.Tests.Management
 {
 
-    public class UsersInvitationBllTests
+    public class UsersVerificationBllTests
     {
         private static SetPointDbContext CreateInMemoryContext()
         {
@@ -35,7 +35,7 @@ namespace SetPoint.BLL.Tests.Management
         }
 
         private readonly Mock<IEmailService> _emailMock = new();
-        private readonly Mock<ILogger<UsersInvitationBll>> _loggerMock = new();
+        private readonly Mock<ILogger<UsersVerificationBll>> _loggerMock = new();
         private readonly Mock<IUserBll> _userBllMock = new();
         private readonly Mock<IUserRelationBll> _userRelationBllMock = new();
 
@@ -56,7 +56,7 @@ namespace SetPoint.BLL.Tests.Management
             await using var context = CreateInMemoryContext();
             _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                       .ReturnsAsync(true);
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             var email = "user@test.com";
             //---------------------------------------------------------------------------------------------------------------- Act
             var result = await bll.CreateAndSendValidateAsync(email);
@@ -83,7 +83,7 @@ namespace SetPoint.BLL.Tests.Management
             await using var context = CreateInMemoryContext();
             _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                       .ReturnsAsync(false);
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             var email = "user@test.com";
             //---------------------------------------------------------------------------------------------------------------- Act
             var result = await bll.CreateAndSendValidateAsync(email);
@@ -115,7 +115,7 @@ namespace SetPoint.BLL.Tests.Management
             };
             context.Users.Add(existingUser);
             await context.SaveChangesAsync();
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             //---------------------------------------------------------------------------------------------------------------- Act
             Func<Task> act = async () => await bll.CreateAndSendValidateAsync("existing@test.com");
             //---------------------------------------------------------------------------------------------------------------- Assert
@@ -133,7 +133,7 @@ namespace SetPoint.BLL.Tests.Management
             await using var context = CreateInMemoryContext();
             _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                       .ReturnsAsync(true);
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             var dto = new UsersInvitationDto
             {
                 Id = Guid.NewGuid(),
@@ -162,7 +162,7 @@ namespace SetPoint.BLL.Tests.Management
             await using var context = CreateInMemoryContext();
             _emailMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
               .ReturnsAsync(false);
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             var dto = new UsersInvitationDto
             {
                 Id = Guid.NewGuid(),
@@ -205,7 +205,7 @@ namespace SetPoint.BLL.Tests.Management
             };
             context.Users.Add(existingUser);
             await context.SaveChangesAsync();
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             //---------------------------------------------------------------------------------------------------------------- Act
             Func<Task> act = async () => await bll.CreateAndSendInvitationAsync(dto);
             //---------------------------------------------------------------------------------------------------------------- Assert
@@ -256,7 +256,7 @@ namespace SetPoint.BLL.Tests.Management
                         .ReturnsAsync(fakeLoginResponse);
             _userRelationBllMock.Setup(r => r.CreateFriendshipAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
                                 .ReturnsAsync(true);
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             //---------------------------------------------------------------------------------------------------------------- Act
             var result = await bll.AcceptInvitationAsync(invitation.Token, "Receiver User", "Password123!");
             //---------------------------------------------------------------------------------------------------------------- Assert
@@ -297,7 +297,7 @@ namespace SetPoint.BLL.Tests.Management
             };
             context.UsersInvitations.Add(invitation);
             await context.SaveChangesAsync();
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             //---------------------------------------------------------------------------------------------------------------- Act
             var result = await bll.AcceptInvitationAsync(invitation.Token, "John Cena", "Password123!");
             //---------------------------------------------------------------------------------------------------------------- Assert
@@ -317,7 +317,7 @@ namespace SetPoint.BLL.Tests.Management
             var token = Guid.NewGuid();
             var fullName = "fake-fullname";
             var password = "password";
-            var bll = new UsersInvitationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
+            var bll = new UsersVerificationBll(MockConfigWithUrls(), _emailMock.Object, _userBllMock.Object, _userRelationBllMock.Object, context, _loggerMock.Object);
             //---------------------------------------------------------------------------------------------------------------- Act
             var result = await bll.AcceptInvitationAsync(token, fullName, password);
             //---------------------------------------------------------------------------------------------------------------- Assert

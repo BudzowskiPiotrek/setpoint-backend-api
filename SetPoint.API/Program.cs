@@ -7,8 +7,8 @@ using SetPoint.BLL._0.Common;
 using SetPoint.BLL._0.Infrastructure;
 using SetPoint.BLL._0.Sync;
 using SetPoint.BLL._02.UserRelationManagement;
-using SetPoint.BLL._02.UsersInvitationManagement;
 using SetPoint.BLL._02.UsersManagement;
+using SetPoint.BLL._02.UsersVerificationManagement;
 using SetPoint.BLL._03.BodyMeasurementsManagement;
 using SetPoint.BLL._03.BodyMeasurementsManagement.Dto;
 using SetPoint.BLL._04.ExercisesManagement;
@@ -68,7 +68,7 @@ builder.Services.AddScoped<IMuscleGroupBll, MuscleGroupBll>();
 builder.Services.AddScoped<IExerciseSetsBll, ExerciseSetsBll>();
 builder.Services.AddScoped<IUserRelationBll, UserRelationBll>();
 builder.Services.AddScoped<IRoutineRequestBll, RoutineRequestBll>();
-builder.Services.AddScoped<IUsersInvitationBll, UsersInvitationBll>();
+builder.Services.AddScoped<IUsersVerificationBll, UsersVerificationBll>();
 builder.Services.AddScoped<IWorkoutSessionsBll, WorkoutSessionsBll>();
 builder.Services.AddScoped<IRoutineExercisesBll, RoutineExercisesBll>();
 builder.Services.AddScoped<IBodyMeasurementsBll, BodyMeasurementsBll>();
@@ -120,6 +120,19 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = 10,
                 Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+    });
+    options.AddPolicy("Register", context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: remoteIp,
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromHours(24),
                 QueueLimit = 0
             });
     });

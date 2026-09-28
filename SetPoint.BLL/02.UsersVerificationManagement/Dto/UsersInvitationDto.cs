@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SetPoint.BLL._02.UsersInvitationManagement.Dto
+namespace SetPoint.BLL._02.UsersVerificationManagement.Dto
 {
     public class UsersInvitationDto
     {

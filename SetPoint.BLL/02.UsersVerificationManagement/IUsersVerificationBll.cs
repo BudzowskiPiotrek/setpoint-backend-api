@@ -1,9 +1,9 @@
-﻿using SetPoint.BLL._02.UsersInvitationManagement.Dto;
-using SetPoint.BLL._02.UsersManagement.Dto;
+﻿using SetPoint.BLL._02.UsersManagement.Dto;
+using SetPoint.BLL._02.UsersVerificationManagement.Dto;
 
-namespace SetPoint.BLL._02.UsersInvitationManagement
+namespace SetPoint.BLL._02.UsersVerificationManagement
 {
-    public interface IUsersInvitationBll
+    public interface IUsersVerificationBll
     {
         Task<bool> CreateAndSendInvitationAsync(UsersInvitationDto dto);
         Task<bool> CreateAndSendValidateAsync(string email);
