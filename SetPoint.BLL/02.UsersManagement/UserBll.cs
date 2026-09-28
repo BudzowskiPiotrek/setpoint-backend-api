@@ -54,7 +54,6 @@ namespace SetPoint.BLL._02.UsersManagement
             {
                 existing.BirthDate = dto.BirthDate;
                 existing.FullName = dto.FullName;
-                existing.Email = dto.Email;
                 existing.Sex = dto.Sex;
                 existing.Height = dto.Height;
                 existing.TermsAcceptedAt = dto.TermsAcceptedAt;

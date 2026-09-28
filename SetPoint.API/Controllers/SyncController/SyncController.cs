@@ -93,6 +93,8 @@ namespace SetPoint.API.Controllers.SyncController
                     StatusCode = 401
                 });
 
+            request.UserId = userId;
+
             try
             {
                 var result = await _syncBll.ProcessPull(request, userId);
