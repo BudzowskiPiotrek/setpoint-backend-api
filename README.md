@@ -14,7 +14,7 @@ Backend engine powering **HabityFit**, an offline-first strength training platfo
 | **Role** | Backend / Android Developer |
 | **Email** | piobudzows@gmail.com |
 | **LinkedIn** | [linkedin.com/in/piobudzows/](https://www.linkedin.com/in/piobudzows/) |
-| **GitHub** | [github.com/piobudzows](https://github.com/budzowskipiotrek) |
+| **GitHub** | [github.com/budzowskipiotrek](https://github.com/budzowskipiotrek) |
 ---
 
 ## Tech Stack
@@ -69,10 +69,10 @@ Synchronization Engine
 ASP.NET Core Backend
             ⇅
 PostgreSQL
-
+```
 The synchronization engine was built to support **offline training sessions with eventual consistency**,
 transferring only modified entities through timestamp-based delta replication instead of full dataset replacement.
-```
+
 # Engineering Notes
 
 Some implementation details intentionally exposed in this repository:
