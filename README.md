@@ -1,6 +1,6 @@
-# SetPoint Backend API
+﻿# HabityFit Backend API
 
-Backend engine powering **SetPoint**, an offline-first strength training platform designed around synchronization, workout tracking and social interactions.
+Backend engine powering **HabityFit**, an offline-first strength training platform designed around synchronization, workout tracking and social interactions.
 
 > **Note:** The native Android application *(Kotlin + Jetpack Compose + Room DB)* remains private for commercial monetization purposes. This repository exposes the complete production backend used by the mobile client.
 
@@ -35,7 +35,7 @@ Backend engine powering **SetPoint**, an offline-first strength training platfor
 
 # Project Overview
 
-SetPoint was designed around a common mobile constraint:
+HabityFit was designed around a common mobile constraint:
 
 **Users may train without connectivity while still expecting local persistence, instant writes and later synchronization across devices.**
 
@@ -57,7 +57,7 @@ Core domains:
 
 # Main Technical Challenge Solved
 
-The core engineering challenge behind SetPoint was implementing synchronization between:
+The core engineering challenge behind HabityFit was implementing synchronization between:
 
 ```text
 Android (Room Database)
